@@ -273,7 +273,7 @@ def check_status(status_code, path):
     return status_code
 
 
-def fetch_all(path, params=None, client=default_client):
+async def fetch_all(path, params=None, client=default_client):
     """
     Args:
         path (str): The path for which we want to retrieve all entries.
@@ -282,10 +282,10 @@ def fetch_all(path, params=None, client=default_client):
         list: All entries stored in database for a given model. You can add a
         filter to the model name like this: "tasks?project_id=project-id"
     """
-    return get(url_path_join("data", path), params=params, client=client)
+    return await get(url_path_join("data", path), params=params, client=client)
 
 
-def fetch_first(path, params=None, client=default_client):
+async def fetch_first(path, params=None, client=default_client):
     """
     Args:
         path (str): The path for which we want to retrieve the first entry.
@@ -293,14 +293,14 @@ def fetch_first(path, params=None, client=default_client):
     Returns:
         dict: The first entry for which a model is required.
     """
-    entries = get(url_path_join("data", path), params=params, client=client)
+    entries = await get(url_path_join("data", path), params=params, client=client)
     if len(entries) > 0:
         return entries[0]
     else:
         return None
 
 
-def fetch_one(model_name, id, client=default_client):
+async def fetch_one(model_name, id, client=default_client):
     """
     Function dedicated at targeting routes that returns a single model
     instance.
@@ -312,10 +312,10 @@ def fetch_one(model_name, id, client=default_client):
     Returns:
         dict: The model instance matching id and model name.
     """
-    return get(url_path_join("data", model_name, id), client=client)
+    return await get(url_path_join("data", model_name, id), client=client)
 
 
-def create(model_name, data, client=default_client):
+async def create(model_name, data, client=default_client):
     """
     Create an entry for given model and data.
 
@@ -326,10 +326,10 @@ def create(model_name, data, client=default_client):
     Returns:
         dict: Created entry
     """
-    return post(url_path_join("data", model_name), data, client=client)
+    return await post(url_path_join("data", model_name), data, client=client)
 
 
-def update(model_name, model_id, data, client=default_client):
+async def update(model_name, model_id, data, client=default_client):
     """
     Update an entry for given model, id and data.
 
@@ -341,7 +341,7 @@ def update(model_name, model_id, data, client=default_client):
     Returns:
         dict: Updated entry
     """
-    return put(url_path_join("data", model_name, model_id), data, client=client)
+    return await put(url_path_join("data", model_name, model_id), data, client=client)
 
 
 def upload(path, file_path, data={}, extra_files=[], client=default_client):
@@ -421,17 +421,19 @@ def import_data(model_name, data, client=default_client):
     return post("/import/kitsu/%s" % model_name, data, client=client)
 
 
-def get_api_version(client=default_client):
+async def get_api_version(client=default_client):
     """
     Returns:
         str: Current version of the API.
     """
-    return get("", client=client)["version"]
+    version = await get("", client=client)
+    return version["version"]
 
 
-def get_current_user(client=default_client):
+async def get_current_user(client=default_client):
     """
     Returns:
         dict: User database information for user linked to auth tokens.
     """
-    return get("auth/authenticated", client=client)["user"]
+    user = await get("auth/authenticated", client=client)
+    return user["user"]
