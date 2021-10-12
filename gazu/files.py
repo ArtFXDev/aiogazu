@@ -7,16 +7,16 @@ default = raw.default_client
 
 
 @cache
-def all_output_types(client=default):
+async def all_output_types(client=default):
     """
     Returns:
         list: Output types listed in database.
     """
-    return raw.fetch_all("output-types", client=client)
+    return await raw.fetch_all("output-types", client=client)
 
 
 @cache
-def all_output_types_for_entity(entity, client=default):
+async def all_output_types_for_entity(entity, client=default):
     """
     Args:
         entity (str / dict): The entity dict or the entity ID.
@@ -25,20 +25,20 @@ def all_output_types_for_entity(entity, client=default):
         list: All output types linked to output files for given entity.
     """
     entity = normalize_model_parameter(entity)
-    return raw.fetch_all(
+    return await raw.fetch_all(
         "entities/%s/output-types" % entity["id"], client=client
     )
 
 
 @cache
-def all_output_types_for_asset_instance(
+async def all_output_types_for_asset_instance(
     asset_instance, temporal_entity, client=default
 ):
     """
     Returns:
         list: Output types for given asset instance and entity (shot or scene).
     """
-    return raw.fetch_all(
+    return await raw.fetch_all(
         "asset-instances/%s/entities/%s/output-types"
         % (asset_instance["id"], temporal_entity["id"]),
         client=client,
@@ -46,7 +46,7 @@ def all_output_types_for_asset_instance(
 
 
 @cache
-def get_output_type(output_type_id, client=default):
+async def get_output_type(output_type_id, client=default):
     """
     Args:
         output_type_id (str): ID of claimed output type.
@@ -54,11 +54,11 @@ def get_output_type(output_type_id, client=default):
     Returns:
         dict: Output type matching given ID.
     """
-    return raw.fetch_one("output-types", output_type_id, client=client)
+    return await raw.fetch_one("output-types", output_type_id, client=client)
 
 
 @cache
-def get_output_type_by_name(output_type_name, client=default):
+async def get_output_type_by_name(output_type_name, client=default):
     """
     Args:
         output_type_name (str): name of claimed output type.
@@ -66,12 +66,12 @@ def get_output_type_by_name(output_type_name, client=default):
     Returns:
         dict: Output type matching given name.
     """
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "output-types", {"name": output_type_name}, client=client
     )
 
 
-def new_output_type(name, short_name, client=default):
+async def new_output_type(name, short_name, client=default):
     """
     Create a new output type in database.
 
@@ -83,15 +83,15 @@ def new_output_type(name, short_name, client=default):
         dict: Created output type.
     """
     data = {"name": name, "short_name": short_name}
-    output_type = get_output_type_by_name(name, client=client)
+    output_type = await get_output_type_by_name(name, client=client)
     if output_type is None:
-        return raw.create("output-types", data, client=client)
+        return await raw.create("output-types", data, client=client)
     else:
         return output_type
 
 
 @cache
-def get_output_file(output_file_id, client=default):
+async def get_output_file(output_file_id, client=default):
     """
     Args:
         output_file_id (str): ID of claimed output file.
@@ -100,11 +100,11 @@ def get_output_file(output_file_id, client=default):
         dict: Output file matching given ID.
     """
     path = "data/output-files/%s" % (output_file_id)
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
 @cache
-def get_output_file_by_path(path, client=default):
+async def get_output_file_by_path(path, client=default):
     """
     Args:
         output_file_id (str, client=default): Path of claimed output file.
@@ -112,11 +112,11 @@ def get_output_file_by_path(path, client=default):
     Returns:
         dict: Output file matching given path.
     """
-    return raw.fetch_first("output-files", {"path": path}, client=client)
+    return await raw.fetch_first("output-files", {"path": path}, client=client)
 
 
 @cache
-def get_all_working_files_for_entity(
+async def get_all_working_files_for_entity(
     entity, task=None, name=None, client=default
 ):
     """
@@ -132,11 +132,11 @@ def get_all_working_files_for_entity(
     if name is not None:
         params["name"] = name
 
-    return raw.fetch_all(path, params, client=client)
+    return await raw.fetch_all(path, params, client=client)
 
 
 @cache
-def get_preview_file(preview_file_id, client=default):
+async def get_preview_file(preview_file_id, client=default):
     """
     Args:
         preview_file_id (str): ID of claimed preview file.
@@ -144,11 +144,11 @@ def get_preview_file(preview_file_id, client=default):
     Returns:
         dict: Preview file corresponding to given ID.
     """
-    return raw.fetch_one("preview-files", preview_file_id, client=client)
+    return await raw.fetch_one("preview-files", preview_file_id, client=client)
 
 
 @cache
-def get_all_preview_files_for_task(task, client=default):
+async def get_all_preview_files_for_task(task, client=default):
     """
     Retrieves all the preview files for a given task.
 
@@ -156,12 +156,12 @@ def get_all_preview_files_for_task(task, client=default):
         task (str, id): Target task
     """
     task = normalize_model_parameter(task)
-    return raw.fetch_all(
+    return await raw.fetch_all(
         "preview-files", {"task_id": task["id"]}, client=client
     )
 
 
-def all_output_files_for_entity(
+async def all_output_files_for_entity(
     entity,
     output_type=None,
     task_type=None,
@@ -202,11 +202,11 @@ def all_output_files_for_entity(
     if file_status:
         params["file_status_id"] = file_status["id"]
 
-    return raw.fetch_all(path, params, client=client)
+    return await raw.fetch_all(path, params, client=client)
 
 
 @cache
-def all_output_files_for_asset_instance(
+async def all_output_files_for_asset_instance(
     asset_instance,
     temporal_entity=None,
     task_type=None,
@@ -253,20 +253,20 @@ def all_output_files_for_asset_instance(
     if file_status:
         params["file_status_id"] = file_status["id"]
 
-    return raw.fetch_all(path, params, client=client)
+    return await raw.fetch_all(path, params, client=client)
 
 
 @cache
-def all_softwares(client=default):
+async def all_softwares(client=default):
     """
     Returns:
         dict: Software versions listed in database.
     """
-    return raw.fetch_all("softwares", client=client)
+    return await raw.fetch_all("softwares", client=client)
 
 
 @cache
-def get_software(software_id, client=default):
+async def get_software(software_id, client=default):
     """
     Args:
         software_id (str): ID of claimed output type.
@@ -274,11 +274,11 @@ def get_software(software_id, client=default):
     Returns:
         dict: Software object corresponding to given ID.
     """
-    return raw.fetch_one("softwares", software_id, client=client)
+    return await raw.fetch_one("softwares", software_id, client=client)
 
 
 @cache
-def get_software_by_name(software_name, client=default):
+async def get_software_by_name(software_name, client=default):
     """
     Args:
         software_name (str): Name of claimed output type.
@@ -286,10 +286,10 @@ def get_software_by_name(software_name, client=default):
     Returns:
         dict: Software object corresponding to given name.
     """
-    return raw.fetch_first("softwares", {"name": software_name}, client=client)
+    return await raw.fetch_first("softwares", {"name": software_name}, client=client)
 
 
-def new_software(name, short_name, file_extension, client=default):
+async def new_software(name, short_name, file_extension, client=default):
     """
     Create a new software in datatabase.
 
@@ -306,15 +306,15 @@ def new_software(name, short_name, file_extension, client=default):
         "short_name": short_name,
         "file_extension": file_extension,
     }
-    software = get_software_by_name(name, client=client)
+    software = await get_software_by_name(name, client=client)
     if software is None:
-        return raw.create("softwares", data, client=client)
+        return await raw.create("softwares", data, client=client)
     else:
         return software
 
 
 @cache
-def build_working_file_path(
+async def build_working_file_path(
     task,
     name="main",
     mode="working",
@@ -343,7 +343,7 @@ def build_working_file_path(
     software = normalize_model_parameter(software)
     if software is not None:
         data["software_id"] = software["id"]
-    result = raw.post(
+    result = await raw.post(
         "data/tasks/%s/working-file-path" % task["id"], data, client=client
     )
     return "%s%s%s" % (
@@ -354,7 +354,7 @@ def build_working_file_path(
 
 
 @cache
-def build_entity_output_file_path(
+async def build_entity_output_file_path(
     entity,
     output_type,
     task_type,
@@ -401,7 +401,7 @@ def build_entity_output_file_path(
         "separator": sep,
     }
     path = "data/entities/%s/output-file-path" % entity["id"]
-    result = raw.post(path, data, client=client)
+    result = await raw.post(path, data, client=client)
     return "%s%s%s" % (
         result["folder_path"].replace(" ", "_"),
         sep,
@@ -410,7 +410,7 @@ def build_entity_output_file_path(
 
 
 @cache
-def build_asset_instance_output_file_path(
+async def build_asset_instance_output_file_path(
     asset_instance,
     temporal_entity,
     output_type,
@@ -464,7 +464,7 @@ def build_asset_instance_output_file_path(
         asset_instance["id"],
         temporal_entity["id"],
     )
-    result = raw.post(path, data, client=client)
+    result = await raw.post(path, data, client=client)
     return "%s%s%s" % (
         result["folder_path"].replace(" ", "_"),
         sep,
@@ -472,7 +472,7 @@ def build_asset_instance_output_file_path(
     )
 
 
-def new_working_file(
+async def new_working_file(
     task,
     name="main",
     mode="working",
@@ -516,12 +516,12 @@ def new_working_file(
     if software is not None:
         data["software_id"] = software["id"]
 
-    return raw.post(
+    return await raw.post(
         "data/tasks/%s/working-files/new" % task["id"], data, client=client
     )
 
 
-def new_entity_output_file(
+async def new_entity_output_file(
     entity,
     output_type,
     task_type,
@@ -589,10 +589,10 @@ def new_entity_output_file(
     if file_status_id is not None:
         data["file_status_id"] = file_status_id
 
-    return raw.post(path, data, client=client)
+    return await raw.post(path, data, client=client)
 
 
-def new_asset_instance_output_file(
+async def new_asset_instance_output_file(
     asset_instance,
     temporal_entity,
     output_type,
@@ -665,10 +665,10 @@ def new_asset_instance_output_file(
     if file_status_id is not None:
         data["file_status_id"] = file_status_id
 
-    return raw.post(path, data, client=client)
+    return await raw.post(path, data, client=client)
 
 
-def get_next_entity_output_revision(
+async def get_next_entity_output_revision(
     entity, output_type, task_type, name="main", client=default
 ):
     """
@@ -689,10 +689,10 @@ def get_next_entity_output_revision(
         "task_type_id": task_type["id"],
         "name": name,
     }
-    return raw.post(path, data, client=client)["next_revision"]
+    return await raw.post(path, data, client=client)["next_revision"]
 
 
-def get_next_asset_instance_output_revision(
+async def get_next_asset_instance_output_revision(
     asset_instance,
     temporal_entity,
     output_type,
@@ -724,10 +724,10 @@ def get_next_asset_instance_output_revision(
         "output_type_id": output_type["id"],
         "task_type_id": task_type["id"],
     }
-    return raw.post(path, data, client=client)["next_revision"]
+    return await raw.post(path, data, client=client)["next_revision"]
 
 
-def get_last_entity_output_revision(
+async def get_last_entity_output_revision(
     entity, output_type, task_type, name="master", client=default
 ):
     """
@@ -744,7 +744,7 @@ def get_last_entity_output_revision(
     entity = normalize_model_parameter(entity)
     output_type = normalize_model_parameter(output_type)
     task_type = normalize_model_parameter(task_type)
-    revision = get_next_entity_output_revision(
+    revision = await get_next_entity_output_revision(
         entity, output_type, task_type, name, client=client
     )
     if revision != 1:
@@ -752,7 +752,7 @@ def get_last_entity_output_revision(
     return revision
 
 
-def get_last_asset_instance_output_revision(
+async def get_last_asset_instance_output_revision(
     asset_instance,
     temporal_entity,
     output_type,
@@ -767,7 +767,7 @@ def get_last_asset_instance_output_revision(
     temporal_entity = normalize_model_parameter(temporal_entity)
     output_type = normalize_model_parameter(output_type)
     task_type = normalize_model_parameter(task_type)
-    revision = get_next_asset_instance_output_revision(
+    revision = await get_next_asset_instance_output_revision(
         asset_instance,
         temporal_entity,
         output_type,
@@ -781,7 +781,7 @@ def get_last_asset_instance_output_revision(
 
 
 @cache
-def get_last_output_files_for_entity(
+async def get_last_output_files_for_entity(
     entity,
     output_type=None,
     task_type=None,
@@ -824,11 +824,11 @@ def get_last_output_files_for_entity(
     if file_status:
         params["file_status_id"] = file_status["id"]
 
-    return raw.fetch_all(path, params, client=client)
+    return await raw.fetch_all(path, params, client=client)
 
 
 @cache
-def get_last_output_files_for_asset_instance(
+async def get_last_output_files_for_asset_instance(
     asset_instance,
     temporal_entity,
     task_type=None,
@@ -877,11 +877,11 @@ def get_last_output_files_for_asset_instance(
     if file_status:
         params["file_status_id"] = file_status["id"]
 
-    return raw.fetch_all(path, params, client=client)
+    return await raw.fetch_all(path, params, client=client)
 
 
 @cache
-def get_working_files_for_task(task, client=default):
+async def get_working_files_for_task(task, client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -891,11 +891,11 @@ def get_working_files_for_task(task, client=default):
     """
     task = normalize_model_parameter(task)
     path = "data/tasks/%s/working-files" % task["id"]
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
 @cache
-def get_last_working_files(task, client=default):
+async def get_last_working_files(task, client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -906,11 +906,11 @@ def get_last_working_files(task, client=default):
     """
     task = normalize_model_parameter(task)
     path = "data/tasks/%s/working-files/last-revisions" % task["id"]
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
 @cache
-def get_last_working_file_revision(task, name="main", client=default):
+async def get_last_working_file_revision(task, name="main", client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -922,12 +922,12 @@ def get_last_working_file_revision(task, name="main", client=default):
     """
     task = normalize_model_parameter(task)
     path = "data/tasks/%s/working-files/last-revisions" % task["id"]
-    working_files_dict = raw.get(path, client=client)
+    working_files_dict = await raw.get(path, client=client)
     return working_files_dict.get(name)
 
 
 @cache
-def get_working_file(working_file_id, client=default):
+async def get_working_file(working_file_id, client=default):
     """
     Args:
         working_file_id (str): ID of claimed working file.
@@ -935,10 +935,10 @@ def get_working_file(working_file_id, client=default):
     Returns:
         dict: Working file corresponding to given ID.
     """
-    return raw.fetch_one("working-files", working_file_id, client=client)
+    return await raw.fetch_one("working-files", working_file_id, client=client)
 
 
-def update_comment(working_file, comment, client=default):
+async def update_comment(working_file, comment, client=default):
     """
     Update the file comment in database for given working file.
 
@@ -949,14 +949,14 @@ def update_comment(working_file, comment, client=default):
         dict: Modified working file
     """
     working_file = normalize_model_parameter(working_file)
-    return raw.put(
+    return await raw.put(
         "/actions/working-files/%s/comment" % working_file["id"],
         {"comment": comment},
         client=client,
     )
 
 
-def update_modification_date(working_file, client=default):
+async def update_modification_date(working_file, client=default):
     """
     Update modification date of given working file with current time (now).
 
@@ -966,14 +966,14 @@ def update_modification_date(working_file, client=default):
     Returns:
         dict: Modified working file
     """
-    return raw.put(
+    return await raw.put(
         "/actions/working-files/%s/modified" % working_file["id"],
         {},
         client=client,
     )
 
 
-def update_output_file(output_file, data, client=default):
+async def update_output_file(output_file, data, client=default):
     """
     Update the data of given output file.
 
@@ -985,10 +985,10 @@ def update_output_file(output_file, data, client=default):
     """
     output_file = normalize_model_parameter(output_file)
     path = "/data/output-files/%s" % output_file["id"]
-    return raw.put(path, data, client=client)
+    return await raw.put(path, data, client=client)
 
 
-def set_project_file_tree(project, file_tree_name, client=default):
+async def set_project_file_tree(project, file_tree_name, client=default):
     """
     (Deprecated) Set given file tree template on given project. This template
     will be used to generate file paths. The template is selected from sources.
@@ -1004,10 +1004,10 @@ def set_project_file_tree(project, file_tree_name, client=default):
     project = normalize_model_parameter(project)
     data = {"tree_name": file_tree_name}
     path = "actions/projects/%s/set-file-tree" % project["id"]
-    return raw.post(path, data, client=client)
+    return await raw.post(path, data, client=client)
 
 
-def update_project_file_tree(project, file_tree, client=default):
+async def update_project_file_tree(project, file_tree, client=default):
     """
     Set given dict as file tree template on given project. This template
     will be used to generate file paths.
@@ -1022,10 +1022,10 @@ def update_project_file_tree(project, file_tree, client=default):
     project = normalize_model_parameter(project)
     data = {"file_tree": file_tree}
     path = "data/projects/%s" % project["id"]
-    return raw.put(path, data, client=client)
+    return await raw.put(path, data, client=client)
 
 
-def upload_working_file(working_file, file_path, client=default):
+async def upload_working_file(working_file, file_path, client=default):
     """
     Save given file in working file storage.
 
@@ -1035,11 +1035,11 @@ def upload_working_file(working_file, file_path, client=default):
     """
     working_file = normalize_model_parameter(working_file)
     url_path = "/data/working-files/%s/file" % working_file["id"]
-    raw.upload(url_path, file_path, client=client)
+    await raw.upload(url_path, file_path, client=client)
     return working_file
 
 
-def download_working_file(working_file, file_path=None, client=default):
+async def download_working_file(working_file, file_path=None, client=default):
     """
     Download given working file and save it at given location.
 
@@ -1049,18 +1049,18 @@ def download_working_file(working_file, file_path=None, client=default):
     """
     working_file = normalize_model_parameter(working_file)
     if file_path is None:
-        working_file = raw.fetch_one(
+        working_file = await raw.fetch_one(
             "working-files", working_file["id"], client=client
         )
         file_path = working_file["path"]
-    return raw.download(
+    return await raw.download(
         "data/working-files/%s/file" % (working_file["id"]),
         file_path,
         client=client,
     )
 
 
-def download_preview_file(preview_file, file_path, client=default):
+async def download_preview_file(preview_file, file_path, client=default):
     """
     Download given preview file and save it at given location.
 
@@ -1069,11 +1069,11 @@ def download_preview_file(preview_file, file_path, client=default):
         file_path (str): Location on hard drive where to save the file.
     """
     preview_file = normalize_model_parameter(preview_file)
-    preview_file = raw.fetch_one(
+    preview_file = await raw.fetch_one(
         "preview-files", preview_file["id"], client=client
     )
     file_type = "movies" if preview_file["extension"] == "mp4" else "pictures"
-    return raw.download(
+    return await raw.download(
         "%s/originals/preview-files/%s.%s"
         % (file_type, preview_file["id"], preview_file["extension"]),
         file_path,
@@ -1081,17 +1081,17 @@ def download_preview_file(preview_file, file_path, client=default):
     )
 
 
-def get_attachment_file(attachment_file_id, client=default):
+async def get_attachment_file(attachment_file_id, client=default):
     """
     Return attachment file object corresponding to given ID.
 
     Args:
         attachment_file_id (str): The attachment file ID.
     """
-    return raw.fetch_one("attachment-files", attachment_file_id, client=client)
+    return await raw.fetch_one("attachment-files", attachment_file_id, client=client)
 
 
-def download_attachment_file(attachment_file, file_path, client=default):
+async def download_attachment_file(attachment_file, file_path, client=default):
     """
     Download given attachment file and save it at given location.
 
@@ -1101,7 +1101,7 @@ def download_attachment_file(attachment_file, file_path, client=default):
     """
     attachment_file = normalize_model_parameter(attachment_file)
     attachment_file = get_attachment_file(attachment_file["id"], client=client)
-    return raw.download(
+    return await raw.download(
         "data/attachment-files/%s/file/%s"
         % (attachment_file["id"], attachment_file["name"]),
         file_path,
@@ -1109,7 +1109,7 @@ def download_attachment_file(attachment_file, file_path, client=default):
     )
 
 
-def download_preview_file_thumbnail(preview_file, file_path, client=default):
+async def download_preview_file_thumbnail(preview_file, file_path, client=default):
     """
     Download given preview file thumbnail and save it at given location.
 
@@ -1119,14 +1119,14 @@ def download_preview_file_thumbnail(preview_file, file_path, client=default):
 
     """
     preview_file = normalize_model_parameter(preview_file)
-    return raw.download(
+    return await raw.download(
         "pictures/thumbnails/preview-files/%s.png" % (preview_file["id"]),
         file_path,
         client=client,
     )
 
 
-def update_preview(preview_file, data, client=default):
+async def update_preview(preview_file, data, client=default):
     """
     Update the data of given preview file.
 
@@ -1138,38 +1138,38 @@ def update_preview(preview_file, data, client=default):
     """
     preview_file = normalize_model_parameter(preview_file)
     path = "/data/preview-files/%s" % preview_file["id"]
-    return raw.put(path, data, client=client)
+    return await raw.put(path, data, client=client)
 
 
-def new_file_status(name, color, client=default):
+async def new_file_status(name, color, client=default):
     """
     Create a new file status if not existing yet.
     """
     data = {"name": name, "color": color}
-    status = get_file_status_by_name(name, client=client)
+    status = await get_file_status_by_name(name, client=client)
     if status is None:
-        return raw.create("file-status", data, client=client)
+        return await raw.create("file-status", data, client=client)
     else:
         return status
 
 
 @cache
-def get_file_status(status_id, client=default):
+async def get_file_status(status_id, client=default):
     """
     Return file status object corresponding to given ID.
 
     Args:
         status_id (str): The files status ID.
     """
-    return raw.fetch_one("file-status", status_id, client=client)
+    return await raw.fetch_one("file-status", status_id, client=client)
 
 
 @cache
-def get_file_status_by_name(name, client=default):
+async def get_file_status_by_name(name, client=default):
     """
     Return file status object corresponding to given name
 
     Args:
         name (str): The files status name.
     """
-    return raw.fetch_first("file-status?name=%s" % name, client=client)
+    return await raw.fetch_first("file-status?name=%s" % name, client=client)
