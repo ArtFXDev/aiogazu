@@ -28,10 +28,10 @@ async def log_in(email, password, client=raw.default_client):
     return tokens
 
 
-def log_out(client=raw.default_client):
+async def log_out(client=raw.default_client):
     tokens = {}
     try:
-        raw.get("auth/logout", client=client)
+        await raw.get("auth/logout", client=client)
     except ParameterException:
         pass
     raw.set_tokens(tokens, client=client)

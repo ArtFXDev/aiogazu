@@ -8,16 +8,16 @@ default = raw.default_client
 
 
 @cache
-def all_project_status(client=default):
+async def all_project_status(client=default):
     """
     Returns:
         list: Project status listed in database.
     """
-    return sort_by_name(raw.fetch_all("project-status", client=client))
+    return sort_by_name(await raw.fetch_all("project-status", client=client))
 
 
 @cache
-def get_project_status_by_name(project_status_name, client=default):
+async def get_project_status_by_name(project_status_name, client=default):
     """
     Args:
         project_status_name (str): Name of claimed project status.
@@ -25,31 +25,31 @@ def get_project_status_by_name(project_status_name, client=default):
     Returns:
         dict: Project status corresponding to given name.
     """
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "project-status", {"name": project_status_name}, client=client
     )
 
 
 @cache
-def all_projects(client=default):
+async def all_projects(client=default):
     """
     Returns:
         list: Projects stored in the database.
     """
-    return sort_by_name(raw.fetch_all("projects", client=client))
+    return sort_by_name(await raw.fetch_all("projects", client=client))
 
 
 @cache
-def all_open_projects(client=default):
+async def all_open_projects(client=default):
     """
     Returns:
         Open projects stored in the database.
     """
-    return sort_by_name(raw.fetch_all("projects/open", client=client))
+    return sort_by_name(await raw.fetch_all("projects/open", client=client))
 
 
 @cache
-def get_project(project_id, client=default):
+async def get_project(project_id, client=default):
     """
     Args:
         project_id (str): ID of claimed project.
@@ -57,10 +57,9 @@ def get_project(project_id, client=default):
     Returns:
         dict: Project corresponding to given id.
     """
-    return raw.fetch_one("projects", project_id, client=client)
+    return await raw.fetch_one("projects", project_id, client=client)
 
 
-@cache
 def get_project_url(project, section="assets", client=default):
     """
     Args:
@@ -80,7 +79,7 @@ def get_project_url(project, section="assets", client=default):
 
 
 @cache
-def get_project_by_name(project_name, client=default):
+async def get_project_by_name(project_name, client=default):
     """
     Args:
         project_name (str): Name of claimed project.
@@ -88,10 +87,10 @@ def get_project_by_name(project_name, client=default):
     Returns:
         dict: Project corresponding to given name.
     """
-    return raw.fetch_first("projects", {"name": project_name}, client=client)
+    return await raw.fetch_first("projects", {"name": project_name}, client=client)
 
 
-def new_project(name, production_type="short", client=default):
+async def new_project(name, production_type="short", client=default):
     """
     Creates a new project.
 
@@ -103,13 +102,13 @@ def new_project(name, production_type="short", client=default):
         dict: Created project.
     """
     data = {"name": name, "production_type": production_type}
-    project = get_project_by_name(name, client=client)
+    project = await get_project_by_name(name, client=client)
     if project is None:
-        project = raw.create("projects", data, client=client)
+        project = await raw.create("projects", data, client=client)
     return project
 
 
-def remove_project(project, force=False, client=default):
+async def remove_project(project, force=False, client=default):
     """
     Remove given project from database. (Prior to do that, make sure, there
     is no asset or shot left).
@@ -121,10 +120,10 @@ def remove_project(project, force=False, client=default):
     path = "data/projects/%s" % project["id"]
     if force:
         path += "?force=true"
-    return raw.delete(path, client=client)
+    return await raw.delete(path, client=client)
 
 
-def update_project(project, client=default):
+async def update_project(project, client=default):
     """
     Save given project data into the API. Metadata are fully replaced by the
     ones set on given project.
@@ -135,10 +134,10 @@ def update_project(project, client=default):
     Returns:
         dict: Updated project.
     """
-    return raw.put("data/projects/%s" % project["id"], project, client=client)
+    return await raw.put("data/projects/%s" % project["id"], project, client=client)
 
 
-def update_project_data(project, data={}, client=default):
+async def update_project_data(project, data={}, client=default):
     """
     Update the metadata for the provided project. Keys that are not provided
     are not changed.
@@ -151,14 +150,14 @@ def update_project_data(project, data={}, client=default):
         dict: Updated project.
     """
     project = normalize_model_parameter(project)
-    project = get_project(project["id"], client=client)
+    project = await get_project(project["id"], client=client)
     if "data" not in project or project["data"] is None:
         project["data"] = {}
     project["data"].update(data)
-    return update_project(project, client=client)
+    return await update_project(project, client=client)
 
 
-def close_project(project, client=default):
+async def close_project(project, client=default):
     """
     Closes the provided project.
 
@@ -170,10 +169,10 @@ def close_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     closed_status_id = None
-    for status in all_project_status(client=client):
+    for status in await all_project_status(client=client):
         if status["name"].lower() == "closed":
             closed_status_id = status["id"]
 
     project["project_status_id"] = closed_status_id
-    update_project(project, client=client)
+    await update_project(project, client=client)
     return project
