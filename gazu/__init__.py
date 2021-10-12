@@ -1,20 +1,4 @@
 from . import client as raw
-from . import cache
-from . import helpers
-from . import events
-
-from . import asset
-from . import casting
-from . import context
-from . import entity
-from . import files
-from . import project
-from . import person
-from . import shot
-from . import sync
-from . import task
-from . import user
-from . import playlist
 
 from .exception import AuthFailedException, ParameterException
 from .__version__ import __version__
@@ -28,18 +12,16 @@ def set_host(url, client=raw.default_client):
     raw.set_host(url, client=client)
 
 
-def log_in(email, password, client=raw.default_client):
+async def log_in(email, password, client=raw.default_client):
     tokens = {}
     try:
-        tokens = raw.post(
+        tokens = await raw.post(
             "auth/login", {"email": email, "password": password}, client=client
         )
     except ParameterException:
         pass
 
-    if not tokens or (
-        "login" in tokens and tokens.get("login", False) == False
-    ):
+    if not tokens or ("login" in tokens and tokens.get("login", False) == False):
         raise AuthFailedException
     else:
         raw.set_tokens(tokens, client=client)

@@ -2,7 +2,9 @@ import functools
 import json
 import shutil
 import urllib
+from contextlib import asynccontextmanager
 
+import aiohttp
 from .encoder import CustomJSONEncoder
 
 from .__version__ import __version__
@@ -22,10 +24,15 @@ from .exception import (
 class KitsuClient(object):
     def __init__(self, host, ssl_verify=True):
         self.tokens = {"access_token": "", "refresh_token": ""}
-        self.session = requests.Session()
-        self.session.verify = ssl_verify
         self.host = host
         self.event_host = host
+
+    @property
+    def headers(self):
+        headers = {"User-Agent": "CGWire Gazu %s" % __version__}
+        if "access_token" in self.tokens and self.tokens["access_token"]:
+            headers["Authorization"] = "Bearer %s" % self.tokens["access_token"]
+        return headers
 
 
 def create_client(host):
@@ -34,40 +41,39 @@ def create_client(host):
 
 default_client = None
 try:
-    import requests
-
     # Little hack to allow json encoder to manage dates.
-    requests.models.complexjson.dumps = functools.partial(
-        json.dumps, cls=CustomJSONEncoder
-    )
+    # requests.models.complexjson.dumps = functools.partial(
+    # json.dumps, cls=CustomJSONEncoder
+    # )
     host = "http://gazu.change.serverhost/api"
     default_client = create_client(host)
 except Exception:
     print("Warning, running in setup mode!")
 
 
-def host_is_up(client=default_client):
+async def host_is_up(client=default_client):
     """
     Returns:
         True if the host is up.
     """
     try:
-        response = client.session.head(client.host)
+        await get("", client=client)
     except Exception:
         return False
-    return response.status_code == 200
+
+    return True
 
 
-def host_is_valid(client=default_client):
+async def host_is_valid(client=default_client):
     """
     Check if the host is valid by simulating a fake login.
     Returns:
         True if the host is valid.
     """
-    if not host_is_up(client):
+    if not await host_is_up(client):
         return False
     try:
-        post("auth/login", {"email": "", "password": ""})
+        await post("auth/login", {"email": "", "password": ""})
     except Exception as exc:
         return type(exc) == ParameterException
 
@@ -158,96 +164,63 @@ def get_full_url(path, client=default_client):
     return url_path_join(get_host(client), path)
 
 
-def build_path_with_params(path, params):
-    """
-    Add params to a path using urllib encoding
-
-    Args:
-        path (str): The url base path
-        params (dict): The parameters to add as a dict
-
-    Returns:
-        str: the builded path
-    """
-    if not params:
-        return path
-
-    if hasattr(urllib, "urlencode"):
-        path = "%s?%s" % (path, urllib.urlencode(params))
-    else:
-        path = "%s?%s" % (path, urllib.parse.urlencode(params))
-    return path
-
-
-def get(path, json_response=True, params=None, client=default_client):
+async def get(path, json_response=True, params=None, client=default_client):
     """
     Run a get request toward given path for configured host.
 
     Returns:
         The request result.
     """
-    path = build_path_with_params(path, params)
-    response = client.session.get(
-        get_full_url(path, client=client),
-        headers=make_auth_header(client=client),
-    )
-    check_status(response, path)
+    async with aiohttp.ClientSession(headers=client.headers) as session:
+        async with session.get(get_full_url(path, client), params=params) as response:
+            check_status(response.status, path)
 
-    if json_response:
-        return response.json()
-    else:
-        return response.text
+            if json_response:
+                return await response.json()
+            else:
+                return await response.text()
 
 
-def post(path, data, client=default_client):
+async def post(path, data, client=default_client):
     """
     Run a post request toward given path for configured host.
 
     Returns:
         The request result.
     """
-    response = client.session.post(
-        get_full_url(path, client),
-        json=data,
-        headers=make_auth_header(client=client),
-    )
-    check_status(response, path)
-    return response.json()
+    async with aiohttp.ClientSession(headers=client.headers) as session:
+        async with session.post(get_full_url(path, client), json=data) as response:
+            check_status(response.status, path)
+            return await response.json()
 
 
-def put(path, data, client=default_client):
+async def put(path, data, client=default_client):
     """
     Run a put request toward given path for configured host.
 
     Returns:
         The request result.
     """
-    response = client.session.put(
-        get_full_url(path, client),
-        json=data,
-        headers=make_auth_header(client=client),
-    )
-    check_status(response, path)
-    return response.json()
+    async with aiohttp.ClientSession(headers=client.headers) as session:
+        async with session.post(get_full_url(path, client), json=data) as response:
+            check_status(response.status, path)
+            return await response.json()
 
 
-def delete(path, params=None, client=default_client):
+async def delete(path, params=None, client=default_client):
     """
     Run a get request toward given path for configured host.
 
     Returns:
         The request result.
     """
-    path = build_path_with_params(path, params)
-
-    response = client.session.delete(
-        get_full_url(path, client), headers=make_auth_header(client=client)
-    )
-    check_status(response, path)
-    return response.text
+    async with aiohttp.ClientSession(headers=client.headers) as session:
+        async with session.get(get_full_url(path, client), params=params) as response:
+            check_status(response.status, path)
+            return await response.text()
 
 
-def check_status(request, path):
+def check_status(status_code, path):
     """
     Raise an exception related to status code, if the status code does not
     match a success code. Print error message when it's relevant.
@@ -267,14 +240,14 @@ def check_status(request, path):
         TooBigFileException: when 413 response occurs
         ServerErrorException: when 500 response occurs
     """
-    status_code = request.status_code
     if status_code == 404:
         raise RouteNotFoundException(path)
     elif status_code == 403:
         raise NotAllowedException(path)
     elif status_code == 400:
-        text = request.json().get("message", "No additional information")
-        raise ParameterException(path, text)
+        # TODO: Get the additional informations from the server
+        # text = request.json().get("message", "No additional information")
+        raise ParameterException(path)
     elif status_code == 405:
         raise MethodNotAllowedException(path)
     elif status_code == 413:
@@ -285,18 +258,17 @@ def check_status(request, path):
     elif status_code in [401, 422]:
         raise NotAuthenticatedException(path)
     elif status_code in [500, 502]:
-        try:
-            stacktrace = request.json().get(
-                "stacktrace", "No stacktrace sent by the server"
-            )
-            message = request.json().get(
-                "message", "No message sent by the server"
-            )
-            print("A server error occured!\n")
-            print("Server stacktrace:\n%s" % stacktrace)
-            print("Error message:\n%s\n" % message)
-        except Exception:
-            print(request.text)
+        # TODO: Get the stacktrace from the server
+        # try:
+        # stacktrace = request.json().get(
+        # "stacktrace", "No stacktrace sent by the server"
+        # )
+        # message = request.json().get("message", "No message sent by the server")
+        # print("A server error occured!\n")
+        # print("Server stacktrace:\n%s" % stacktrace)
+        # print("Error message:\n%s\n" % message)
+        # except Exception:
+        # print(request.text)
         raise ServerErrorException(path)
     return status_code
 
@@ -369,9 +341,7 @@ def update(model_name, model_id, data, client=default_client):
     Returns:
         dict: Updated entry
     """
-    return put(
-        url_path_join("data", model_name, model_id), data, client=client
-    )
+    return put(url_path_join("data", model_name, model_id), data, client=client)
 
 
 def upload(path, file_path, data={}, extra_files=[], client=default_client):
