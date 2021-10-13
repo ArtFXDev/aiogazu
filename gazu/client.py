@@ -1,11 +1,7 @@
-import functools
-import json
 import shutil
-import urllib
-from contextlib import asynccontextmanager
+from typing import Any
 
 import aiohttp
-from .encoder import CustomJSONEncoder
 
 from .__version__ import __version__
 
@@ -51,7 +47,7 @@ except Exception:
     print("Warning, running in setup mode!")
 
 
-async def host_is_up(client=default_client):
+async def host_is_up(client=default_client) -> bool:
     """
     Returns:
         True if the host is up.
@@ -64,7 +60,7 @@ async def host_is_up(client=default_client):
     return True
 
 
-async def host_is_valid(client=default_client):
+async def host_is_valid(client=default_client) -> bool:
     """
     Check if the host is valid by simulating a fake login.
     Returns:
@@ -78,7 +74,7 @@ async def host_is_valid(client=default_client):
         return type(exc) == ParameterException
 
 
-def get_host(client=default_client):
+def get_host(client=default_client) -> str:
     """
     Returns:
         Host on which requests are sent.
@@ -86,7 +82,7 @@ def get_host(client=default_client):
     return client.host
 
 
-def get_api_url_from_host(client=default_client):
+def get_api_url_from_host(client=default_client) -> str:
     """
     Returns:
         Zou url, retrieved from host.
@@ -94,7 +90,7 @@ def get_api_url_from_host(client=default_client):
     return client.host[:-4]
 
 
-def set_host(new_host, client=default_client):
+def set_host(new_host, client=default_client) -> str:
     """
     Returns:
         Set currently configured host on which requests are sent.
@@ -120,7 +116,7 @@ def set_event_host(new_host, client=default_client):
     return client.event_host
 
 
-def set_tokens(new_tokens, client=default_client):
+def set_tokens(new_tokens, client=default_client) -> dict:
     """
     Store authentication token to reuse them for all requests.
 
@@ -131,7 +127,7 @@ def set_tokens(new_tokens, client=default_client):
     return client.tokens
 
 
-def make_auth_header(client=default_client):
+def make_auth_header(client=default_client) -> dict:
     """
     Returns:
         Headers required to authenticate.
@@ -142,7 +138,7 @@ def make_auth_header(client=default_client):
     return headers
 
 
-def url_path_join(*items):
+def url_path_join(*items) -> str:
     """
     Make it easier to build url path by joining every arguments with a '/'
     character.
@@ -153,7 +149,7 @@ def url_path_join(*items):
     return "/".join([item.lstrip("/").rstrip("/") for item in items])
 
 
-def get_full_url(path, client=default_client):
+def get_full_url(path, client=default_client) -> str:
     """
     Args:
         path (str): The path to integrate to host url.
@@ -164,7 +160,7 @@ def get_full_url(path, client=default_client):
     return url_path_join(get_host(client), path)
 
 
-async def get(path, json_response=True, params=None, client=default_client):
+async def get(path, json_response=True, params=None, client=default_client) -> Any:
     """
     Run a get request toward given path for configured host.
 
@@ -181,7 +177,7 @@ async def get(path, json_response=True, params=None, client=default_client):
                 return await response.text()
 
 
-async def post(path, data, client=default_client):
+async def post(path, data, client=default_client) -> Any:
     """
     Run a post request toward given path for configured host.
 
@@ -194,7 +190,7 @@ async def post(path, data, client=default_client):
             return await response.json()
 
 
-async def put(path, data, client=default_client):
+async def put(path, data, client=default_client) -> Any:
     """
     Run a put request toward given path for configured host.
 
@@ -207,7 +203,7 @@ async def put(path, data, client=default_client):
             return await response.json()
 
 
-async def delete(path, params=None, client=default_client):
+async def delete(path, params=None, client=default_client) -> Any:
     """
     Run a get request toward given path for configured host.
 
@@ -273,7 +269,7 @@ def check_status(status_code, path):
     return status_code
 
 
-async def fetch_all(path, params=None, client=default_client):
+async def fetch_all(path, params=None, client=default_client) -> Any:
     """
     Args:
         path (str): The path for which we want to retrieve all entries.
@@ -285,7 +281,7 @@ async def fetch_all(path, params=None, client=default_client):
     return await get(url_path_join("data", path), params=params, client=client)
 
 
-async def fetch_first(path, params=None, client=default_client):
+async def fetch_first(path, params=None, client=default_client) -> Any:
     """
     Args:
         path (str): The path for which we want to retrieve the first entry.
@@ -300,7 +296,7 @@ async def fetch_first(path, params=None, client=default_client):
         return None
 
 
-async def fetch_one(model_name, id, client=default_client):
+async def fetch_one(model_name, id, client=default_client) -> Any:
     """
     Function dedicated at targeting routes that returns a single model
     instance.
@@ -315,7 +311,7 @@ async def fetch_one(model_name, id, client=default_client):
     return await get(url_path_join("data", model_name, id), client=client)
 
 
-async def create(model_name, data, client=default_client):
+async def create(model_name, data, client=default_client) -> Any:
     """
     Create an entry for given model and data.
 
@@ -329,7 +325,7 @@ async def create(model_name, data, client=default_client):
     return await post(url_path_join("data", model_name), data, client=client)
 
 
-async def update(model_name, model_id, data, client=default_client):
+async def update(model_name, model_id, data, client=default_client) -> Any:
     """
     Update an entry for given model, id and data.
 
@@ -344,7 +340,7 @@ async def update(model_name, model_id, data, client=default_client):
     return await put(url_path_join("data", model_name, model_id), data, client=client)
 
 
-def upload(path, file_path, data={}, extra_files=[], client=default_client):
+def upload(path, file_path, data={}, extra_files=[], client=default_client) -> Any:
     """
     Upload file located at *file_path* to given url *path*.
 
@@ -376,7 +372,7 @@ def _build_file_dict(file_path, extra_files):
     return files
 
 
-def download(path, file_path, client=default_client):
+def download(path, file_path, client=default_client) -> Any:
     """
     Download file located at *file_path* to given url *path*.
 
@@ -421,7 +417,7 @@ def import_data(model_name, data, client=default_client):
     return post("/import/kitsu/%s" % model_name, data, client=client)
 
 
-async def get_api_version(client=default_client):
+async def get_api_version(client=default_client) -> Any:
     """
     Returns:
         str: Current version of the API.
@@ -430,7 +426,7 @@ async def get_api_version(client=default_client):
     return version["version"]
 
 
-async def get_current_user(client=default_client):
+async def get_current_user(client=default_client) -> Any:
     """
     Returns:
         dict: User database information for user linked to auth tokens.
