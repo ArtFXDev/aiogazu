@@ -340,7 +340,9 @@ async def update(model_name, model_id, data, client=default_client) -> Any:
     return await put(url_path_join("data", model_name, model_id), data, client=client)
 
 
-def upload(path, file_path, data={}, extra_files=[], client=default_client) -> Any:
+async def upload(
+    path, file_path, data={}, extra_files=[], client=default_client
+) -> Any:
     """
     Upload file located at *file_path* to given url *path*.
 
@@ -351,16 +353,15 @@ def upload(path, file_path, data={}, extra_files=[], client=default_client) -> A
     Returns:
         Response: Request response object.
     """
-    url = get_full_url(path, client)
     files = _build_file_dict(file_path, extra_files)
-    response = client.session.post(
-        url, data=data, headers=make_auth_header(client=client), files=files
-    )
-    check_status(response, path)
-    result = response.json()
-    if "message" in result:
-        raise UploadFailedException(result["message"])
-    return result
+    async with aiohttp.ClientSession(headers=client.headers) as session:
+        async with session.post(get_full_url(path, client), data=files) as response:
+            check_status(response.status, path)
+            print(response)
+            result = await response.json()
+            if "message" in result:
+                raise UploadFailedException(result["message"])
+            return result
 
 
 def _build_file_dict(file_path, extra_files):
