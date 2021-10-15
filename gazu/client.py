@@ -354,10 +354,11 @@ async def upload(
         Response: Request response object.
     """
     files = _build_file_dict(file_path, extra_files)
+    files.update(data)
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.post(get_full_url(path, client), data=files) as response:
-            check_status(response.status, path)
             print(response)
+            check_status(response.status, path)
             result = await response.json()
             if "message" in result:
                 raise UploadFailedException(result["message"])
