@@ -73,6 +73,8 @@ async def host_is_valid(client=default_client) -> bool:
     except Exception as exc:
         return type(exc) == ParameterException
 
+    return True
+
 
 def get_host(client=default_client) -> str:
     """
