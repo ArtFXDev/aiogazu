@@ -5,7 +5,7 @@ from .helpers import normalize_model_parameter
 default = raw.default_client
 
 
-def update_shot_casting(project, shot, casting, client=default):
+async def update_shot_casting(project, shot, casting, client=default):
     """
     Change casting of given shot with given casting (list of asset ids displayed
     into the shot).
@@ -21,10 +21,10 @@ def update_shot_casting(project, shot, casting, client=default):
     shot = normalize_model_parameter(shot)
     project = normalize_model_parameter(project)
     path = "data/projects/%s/entities/%s/casting" % (project["id"], shot["id"])
-    return raw.put(path, casting, client=client)
+    return await raw.put(path, casting, client=client)
 
 
-def update_asset_casting(project, asset, casting, client=default):
+async def update_asset_casting(project, asset, casting, client=default):
     """
     Change casting of given asset with given casting (list of asset ids
     displayed into the asset).
@@ -43,10 +43,10 @@ def update_asset_casting(project, asset, casting, client=default):
         project["id"],
         asset["id"],
     )
-    return raw.put(path, casting, client=client)
+    return await raw.put(path, casting, client=client)
 
 
-def get_asset_type_casting(project, asset_type, client=default):
+async def get_asset_type_casting(project, asset_type, client=default):
     """
     Return casting for given asset_type.
     `casting = {
@@ -68,10 +68,10 @@ def get_asset_type_casting(project, asset_type, client=default):
         project["id"],
         asset_type["id"],
     )
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def get_sequence_casting(sequence, client=default):
+async def get_sequence_casting(sequence, client=default):
     """
     Return casting for given sequence.
     `casting = {
@@ -89,10 +89,10 @@ def get_sequence_casting(sequence, client=default):
         sequence["project_id"],
         sequence["id"],
     )
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def get_shot_casting(shot, client=default):
+async def get_shot_casting(shot, client=default):
     """
     Return casting for given shot.
     `[{"asset_id": "asset-1", "nb_occurences": 3}]}`
@@ -106,10 +106,10 @@ def get_shot_casting(shot, client=default):
         shot["project_id"],
         shot["id"],
     )
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def get_asset_casting(asset, client=default):
+async def get_asset_casting(asset, client=default):
     """
     Return casting for given asset.
     `[{"asset_id": "asset-1", "nb_occurences": 3}]}`
@@ -123,10 +123,10 @@ def get_asset_casting(asset, client=default):
         asset["project_id"],
         asset["id"],
     )
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def get_asset_cast_in(asset, client=default):
+async def get_asset_cast_in(asset, client=default):
     """
     Return shot list where given asset is casted.
     Args:
@@ -137,10 +137,10 @@ def get_asset_cast_in(asset, client=default):
     """
     asset = normalize_model_parameter(asset)
     path = "/data/assets/%s/cast-in" % asset["id"]
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def all_entity_links_for_project(project, client=default):
+async def all_entity_links_for_project(project, client=default):
     """
     Args:
         project (dict): The project
@@ -150,4 +150,4 @@ def all_entity_links_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "/data/projects/%s/entity-links" % project["id"]
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)

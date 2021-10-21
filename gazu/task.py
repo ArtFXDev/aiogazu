@@ -11,40 +11,40 @@ default = raw.default_client
 
 
 @cache
-def all_task_statuses(client=default):
+async def all_task_statuses(client=default):
     """
     Returns:
         list: Task statuses stored in database.
     """
-    task_statuses = raw.fetch_all("task-status", client=client)
+    task_statuses = await raw.fetch_all("task-status", client=client)
     return sort_by_name(task_statuses)
 
 
 @cache
-def all_task_types(client=default):
+async def all_task_types(client=default):
     """
     Returns:
         list: Task types stored in database.
     """
-    task_types = raw.fetch_all("task-types", client=client)
+    task_types = await raw.fetch_all("task-types", client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_project(project, client=default):
+async def all_task_types_for_project(project, client=default):
     """
     Returns:
         list: Task types stored in database.
     """
     project = normalize_model_parameter(project)
-    task_types = raw.fetch_all(
+    task_types = await raw.fetch_all(
         "projects/%s/task-types" % project["id"], client=client
     )
     return sort_by_name(task_types)
 
 
 @cache
-def all_tasks_for_shot(shot, relations=False, client=default):
+async def all_tasks_for_shot(shot, relations=False, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -56,12 +56,12 @@ def all_tasks_for_shot(shot, relations=False, client=default):
     params = {}
     if relations:
         params = {"relations": "true"}
-    tasks = raw.fetch_all("shots/%s/tasks" % shot["id"], params, client=client)
+    tasks = await raw.fetch_all("shots/%s/tasks" % shot["id"], params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_sequence(sequence, relations=False, client=default):
+async def all_tasks_for_sequence(sequence, relations=False, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -74,12 +74,12 @@ def all_tasks_for_sequence(sequence, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "sequences/%s/tasks" % sequence["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_scene(scene, relations=False, client=default):
+async def all_tasks_for_scene(scene, relations=False, client=default):
     """
     Args:
         sequence (str / dict): The scene dict or the scene ID.
@@ -92,12 +92,12 @@ def all_tasks_for_scene(scene, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "scenes/%s/tasks" % scene["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_asset(asset, relations=False, client=default):
+async def all_tasks_for_asset(asset, relations=False, client=default):
     """
     Args:
         asset (str / dict): The asset dict or the asset ID.
@@ -110,12 +110,12 @@ def all_tasks_for_asset(asset, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "assets/%s/tasks" % asset["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_episode(episode, relations=False, client=default):
+async def all_tasks_for_episode(episode, relations=False, client=default):
     """
     Retrieve all tasks directly linked to given episode.
     """
@@ -124,12 +124,12 @@ def all_tasks_for_episode(episode, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "episodes/%s/tasks" % episode["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_shot_tasks_for_sequence(sequence, relations=False, client=default):
+async def all_shot_tasks_for_sequence(sequence, relations=False, client=default):
     """
     Retrieve all tasks directly linked to all shots of given sequence.
     """
@@ -138,12 +138,12 @@ def all_shot_tasks_for_sequence(sequence, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "sequences/%s/shot-tasks" % sequence["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_shot_tasks_for_episode(episode, relations=False, client=default):
+async def all_shot_tasks_for_episode(episode, relations=False, client=default):
     """
     Retrieve all tasks directly linked to all shots of given episode.
     """
@@ -152,12 +152,12 @@ def all_shot_tasks_for_episode(episode, relations=False, client=default):
     if relations:
         params = {"relations": "true"}
     path = "episodes/%s/shot-tasks" % episode["id"]
-    tasks = raw.fetch_all(path, params, client=client)
+    tasks = await raw.fetch_all(path, params, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_task_status(project, task_type, task_status, client=default):
+async def all_tasks_for_task_status(project, task_type, task_status, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -170,7 +170,7 @@ def all_tasks_for_task_status(project, task_type, task_status, client=default):
     project = normalize_model_parameter(project)
     task_type = normalize_model_parameter(task_type)
     task_status = normalize_model_parameter(task_status)
-    return raw.fetch_all(
+    return await raw.fetch_all(
         "tasks",
         {
             "project_id": project["id"],
@@ -182,7 +182,7 @@ def all_tasks_for_task_status(project, task_type, task_status, client=default):
 
 
 @cache
-def all_tasks_for_task_type(project, task_type, client=default):
+async def all_tasks_for_task_type(project, task_type, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -193,7 +193,7 @@ def all_tasks_for_task_type(project, task_type, client=default):
     """
     project = normalize_model_parameter(project)
     task_type = normalize_model_parameter(task_type)
-    return raw.fetch_all(
+    return await raw.fetch_all(
         "tasks",
         {
             "project_id": project["id"],
@@ -204,7 +204,7 @@ def all_tasks_for_task_type(project, task_type, client=default):
 
 
 @cache
-def all_task_types_for_shot(shot, client=default):
+async def all_task_types_for_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -214,12 +214,12 @@ def all_task_types_for_shot(shot, client=default):
     """
     shot = normalize_model_parameter(shot)
     path = "shots/%s/task-types" % shot["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_asset(asset, client=default):
+async def all_task_types_for_asset(asset, client=default):
     """
     Args:
         asset (str / dict): The asset dict or the asset ID.
@@ -228,14 +228,14 @@ def all_task_types_for_asset(asset, client=default):
         list: Task types of tasks related to given asset.
     """
     asset = normalize_model_parameter(asset)
-    task_types = raw.fetch_all(
+    task_types = await raw.fetch_all(
         "assets/%s/task-types" % asset["id"], client=client
     )
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_scene(scene, client=default):
+async def all_task_types_for_scene(scene, client=default):
     """
     Args:
         scene (str / dict): The scene dict or the scene ID.
@@ -245,12 +245,12 @@ def all_task_types_for_scene(scene, client=default):
     """
     scene = normalize_model_parameter(scene)
     path = "scenes/%s/task-types" % scene["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_sequence(sequence, client=default):
+async def all_task_types_for_sequence(sequence, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -260,24 +260,24 @@ def all_task_types_for_sequence(sequence, client=default):
     """
     sequence = normalize_model_parameter(sequence)
     path = "sequences/%s/task-types" % sequence["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_episode(episode, client=default):
+async def all_task_types_for_episode(episode, client=default):
     """
     Returns:
         list: Task types of tasks linked directly to given episode.
     """
     episode = normalize_model_parameter(episode)
     path = "episodes/%s/task-types" % episode["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_tasks_for_entity_and_task_type(entity, task_type, client=default):
+async def all_tasks_for_entity_and_task_type(entity, task_type, client=default):
     """
     Args:
         entity (str / dict): The entity dict or the entity ID.
@@ -291,36 +291,36 @@ def all_tasks_for_entity_and_task_type(entity, task_type, client=default):
     task_type_id = task_type["id"]
     entity_id = entity["id"]
     path = "entities/%s/task-types/%s/tasks" % (entity_id, task_type_id)
-    return raw.fetch_all(path, client=client)
+    return await raw.fetch_all(path, client=client)
 
 
 @cache
-def all_tasks_for_person(person, client=default):
+async def all_tasks_for_person(person, client=default):
     """
     Returns:
         list: Tasks that are not done for given person (only for open projects).
     """
     person = normalize_model_parameter(person)
-    return raw.fetch_all("persons/%s/tasks" % person["id"], client=client)
+    return await raw.fetch_all("persons/%s/tasks" % person["id"], client=client)
 
 
 @cache
-def all_done_tasks_for_person(person, client=default):
+async def all_done_tasks_for_person(person, client=default):
     """
     Returns:
         list: Tasks that are done for given person (only for open projects).
     """
     person = normalize_model_parameter(person)
-    return raw.fetch_all("persons/%s/done-tasks" % person["id"], client=client)
+    return await raw.fetch_all("persons/%s/done-tasks" % person["id"], client=client)
 
 
 @cache
-def get_task_by_entity(entity, task_type, client=default):
-    return get_task_by_name(entity, task_type, client=client)
+async def get_task_by_entity(entity, task_type, client=default):
+    return await get_task_by_name(entity, task_type, client=client)
 
 
 @cache
-def get_task_by_name(entity, task_type, name="main", client=default):
+async def get_task_by_name(entity, task_type, name="main", client=default):
     """
     Args:
         entity (str / dict): The entity dict or the entity ID.
@@ -332,7 +332,7 @@ def get_task_by_name(entity, task_type, name="main", client=default):
     """
     entity = normalize_model_parameter(entity)
     task_type = normalize_model_parameter(task_type)
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "tasks",
         {
             "name": name,
@@ -344,7 +344,7 @@ def get_task_by_name(entity, task_type, name="main", client=default):
 
 
 @cache
-def get_task_type(task_type_id, client=default):
+async def get_task_type(task_type_id, client=default):
     """
     Args:
         task_type_id (str): Id of claimed task type.
@@ -352,11 +352,11 @@ def get_task_type(task_type_id, client=default):
     Returns:
         dict: Task type matching given ID.
     """
-    return raw.fetch_one("task-types", task_type_id, client=client)
+    return await raw.fetch_one("task-types", task_type_id, client=client)
 
 
 @cache
-def get_task_type_by_name(task_type_name, client=default):
+async def get_task_type_by_name(task_type_name, client=default):
     """
     Args:
         task_type_name (str): Name of claimed task type.
@@ -364,13 +364,13 @@ def get_task_type_by_name(task_type_name, client=default):
     Returns:
         dict: Task type object for given name.
     """
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "task-types", {"name": task_type_name}, client=client
     )
 
 
 @cache
-def get_task_by_path(project, file_path, entity_type="shot", client=default):
+async def get_task_by_path(project, file_path, entity_type="shot", client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -387,11 +387,11 @@ def get_task_by_path(project, file_path, entity_type="shot", client=default):
         "project_id": project["id"],
         "type": entity_type,
     }
-    return raw.post("data/tasks/from-path/", data, client=client)
+    return await raw.post("data/tasks/from-path/", data, client=client)
 
 
 @cache
-def get_task_status(task_status_id, client=default):
+async def get_task_status(task_status_id, client=default):
     """
     Args:
         task_status_id (str): Id of claimed task status.
@@ -399,11 +399,11 @@ def get_task_status(task_status_id, client=default):
     Returns:
         dict: Task status matching given ID.
     """
-    return raw.fetch_one("task-status", task_status_id, client=client)
+    return await raw.fetch_one("task-status", task_status_id, client=client)
 
 
 @cache
-def get_task_status_by_name(name, client=default):
+async def get_task_status_by_name(name, client=default):
     """
     Args:
         name (str / dict): The name of claimed task status.
@@ -411,11 +411,11 @@ def get_task_status_by_name(name, client=default):
     Returns:
         dict: Task status matching given name.
     """
-    return raw.fetch_first("task-status", {"name": name}, client=client)
+    return await raw.fetch_first("task-status", {"name": name}, client=client)
 
 
 @cache
-def get_task_status_by_short_name(task_status_short_name, client=default):
+async def get_task_status_by_short_name(task_status_short_name, client=default):
     """
     Args:
         short_name (str / dict): The short name of claimed task status.
@@ -423,12 +423,12 @@ def get_task_status_by_short_name(task_status_short_name, client=default):
     Returns:
         dict: Task status matching given short name.
     """
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "task-status", {"short_name": task_status_short_name}, client=client
     )
 
 
-def remove_task_status(task_status, client=default):
+async def remove_task_status(task_status, client=default):
     """
     Remove given task status from database.
 
@@ -436,7 +436,7 @@ def remove_task_status(task_status, client=default):
         task_status (str / dict): The task status dict or ID.
     """
     task_status = normalize_model_parameter(task_status)
-    return raw.delete(
+    return await raw.delete(
         "data/task-status/%s" % task_status["id"],
         {"force": "true"},
         client=client,
@@ -444,7 +444,7 @@ def remove_task_status(task_status, client=default):
 
 
 @cache
-def get_task(task_id, client=default):
+async def get_task(task_id, client=default):
     """
     Args:
         task_id (str): Id of claimed task.
@@ -453,10 +453,10 @@ def get_task(task_id, client=default):
         dict: Task matching given ID.
     """
     task_id = normalize_model_parameter(task_id)
-    return raw.get("data/tasks/%s/full" % task_id["id"], client=client)
+    return await raw.get("data/tasks/%s/full" % task_id["id"], client=client)
 
 
-def new_task(
+async def new_task(
     entity,
     task_type,
     name="main",
@@ -482,7 +482,7 @@ def new_task(
     entity = normalize_model_parameter(entity)
     task_type = normalize_model_parameter(task_type)
     if task_status is None:
-        task_status = get_task_status_by_name("Todo", client=client)
+        task_status = await get_task_status_by_name("Todo", client=client)
 
     data = {
         "project_id": entity["project_id"],
@@ -502,13 +502,13 @@ def new_task(
     else:
         data["assignees"] = []
 
-    task = get_task_by_name(entity, task_type, name, client=client)
+    task = await get_task_by_name(entity, task_type, name, client=client)
     if task is None:
-        task = raw.post("data/tasks", data, client=client)
+        task = await raw.post("data/tasks", data, client=client)
     return task
 
 
-def remove_task(task, client=default):
+async def remove_task(task, client=default):
     """
     Remove given task from database.
 
@@ -516,10 +516,10 @@ def remove_task(task, client=default):
         task (str / dict): The task dict or the task ID.
     """
     task = normalize_model_parameter(task)
-    raw.delete("data/tasks/%s" % task["id"], {"force": "true"}, client=client)
+    await raw.delete("data/tasks/%s" % task["id"], {"force": "true"}, client=client)
 
 
-def start_task(task, client=default):
+async def start_task(task, client=default):
     """
     Change a task status to WIP and set its real start date to now.
 
@@ -531,10 +531,10 @@ def start_task(task, client=default):
     """
     task = normalize_model_parameter(task)
     path = "actions/tasks/%s/start" % task["id"]
-    return raw.put(path, {}, client=client)
+    return await raw.put(path, {}, client=client)
 
 
-def task_to_review(
+async def task_to_review(
     task, person, comment, revision=1, change_status=True, client=default
 ):
     """
@@ -562,11 +562,11 @@ def task_to_review(
         "change_status": change_status,
     }
 
-    return raw.put(path, data, client=client)
+    return await raw.put(path, data, client=client)
 
 
 @cache
-def get_time_spent(task, date, client=default):
+async def get_time_spent(task, date, client=default):
     """
     Get the time spent by CG artists on a task at a given date. A field contains
     the total time spent.  Durations are given in seconds. Date format is
@@ -581,10 +581,10 @@ def get_time_spent(task, date, client=default):
     """
     task = normalize_model_parameter(task)
     path = "actions/tasks/%s/time-spents/%s" % (task["id"], date)
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)
 
 
-def set_time_spent(task, person, date, duration, client=default):
+async def set_time_spent(task, person, date, duration, client=default):
     """
     Set the time spent by a CG artist on a given task at a given date. Durations
     must be set in seconds. Date format is YYYY-MM-DD.
@@ -605,10 +605,10 @@ def set_time_spent(task, person, date, duration, client=default):
         date,
         person["id"],
     )
-    return raw.post(path, {"duration": duration}, client=client)
+    return await raw.post(path, {"duration": duration}, client=client)
 
 
-def add_time_spent(task, person, date, duration, client=default):
+async def add_time_spent(task, person, date, duration, client=default):
     """
     Add given duration to the already logged duration for given task and person
     at a given date. Durations must be set in seconds. Date format is
@@ -630,10 +630,10 @@ def add_time_spent(task, person, date, duration, client=default):
         date,
         person["id"],
     )
-    return raw.post(path, {"duration": duration}, client=client)
+    return await raw.post(path, {"duration": duration}, client=client)
 
 
-def add_comment(
+async def add_comment(
     task,
     task_status,
     comment="",
@@ -674,14 +674,14 @@ def add_comment(
         data["created_at"] = validate_date_format(created_at)
 
     if len(attachments) == 0:
-        return raw.post(
+        return await raw.post(
             "actions/tasks/%s/comment" % task["id"], data, client=client
         )
 
     else:
         attachment = attachments.pop()
         data["checklist"] = json.dumps(checklist)
-        return raw.upload(
+        return await raw.upload(
             "actions/tasks/%s/comment" % task["id"],
             attachment,
             data=data,
@@ -690,7 +690,7 @@ def add_comment(
         )
 
 
-def remove_comment(comment, client=default):
+async def remove_comment(comment, client=default):
     """
     Remove given comment and related (previews, news, notifications) from
     database.
@@ -699,10 +699,10 @@ def remove_comment(comment, client=default):
         comment (str / dict): The comment dict or the comment ID.
     """
     comment = normalize_model_parameter(comment)
-    return raw.delete("data/comments/%s" % comment["id"], client=client)
+    return await raw.delete("data/comments/%s" % comment["id"], client=client)
 
 
-def create_preview(task, comment, client=default):
+async def create_preview(task, comment, client=default):
     """
     Create a preview into given comment.
 
@@ -719,10 +719,10 @@ def create_preview(task, comment, client=default):
         task["id"],
         comment["id"],
     )
-    return raw.post(path, {}, client=client)
+    return await raw.post(path, {}, client=client)
 
 
-def upload_preview_file(
+async def upload_preview_file(
     preview,
     file_path,
     normalize_movie=True,
@@ -738,10 +738,10 @@ def upload_preview_file(
     path = "pictures/preview-files/%s" % preview["id"]
     if not normalize_movie:
         path += "?normalize=false"
-    raw.upload(path, file_path, client=client)
+    await raw.upload(path, file_path, client=client)
 
 
-def add_preview(
+async def add_preview(
     task,
     comment,
     preview_file_path,
@@ -759,8 +759,8 @@ def add_preview(
     Returns:
         dict: Created preview file model.
     """
-    preview_file = create_preview(task, comment, client=client)
-    upload_preview_file(
+    preview_file = await create_preview(task, comment, client=client)
+    await upload_preview_file(
         preview_file,
         preview_file_path,
         normalize_movie=normalize_movie,
@@ -769,7 +769,7 @@ def add_preview(
     return preview_file
 
 
-def set_main_preview(preview_file, client=default):
+async def set_main_preview(preview_file, client=default):
     """
     Set given preview as thumbnail of given entity.
 
@@ -781,11 +781,11 @@ def set_main_preview(preview_file, client=default):
     """
     preview_file = normalize_model_parameter(preview_file)
     path = "actions/preview-files/%s/set-main-preview" % preview_file["id"]
-    return raw.put(path, {}, client=client)
+    return await raw.put(path, {}, client=client)
 
 
 @cache
-def all_comments_for_task(task, client=default):
+async def all_comments_for_task(task, client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -794,11 +794,11 @@ def all_comments_for_task(task, client=default):
         Comments linked to the given task.
     """
     task = normalize_model_parameter(task)
-    return raw.fetch_all("tasks/%s/comments" % task["id"], client=client)
+    return await raw.fetch_all("tasks/%s/comments" % task["id"], client=client)
 
 
 @cache
-def get_last_comment_for_task(task, client=default):
+async def get_last_comment_for_task(task, client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -807,11 +807,11 @@ def get_last_comment_for_task(task, client=default):
         Last comment posted for given task.
     """
     task = normalize_model_parameter(task)
-    return raw.fetch_first("tasks/%s/comments" % task["id"], client=client)
+    return await raw.fetch_first("tasks/%s/comments" % task["id"], client=client)
 
 
 @cache
-def assign_task(task, person, client=default):
+async def assign_task(task, person, client=default):
     """
     Assign one Person to a Task.
     Args:
@@ -824,10 +824,10 @@ def assign_task(task, person, client=default):
     person = normalize_model_parameter(person)
     task = normalize_model_parameter(task)
     path = "/actions/persons/%s/assign" % person["id"]
-    return raw.put(path, {"task_ids": task["id"]}, client=client)
+    return await raw.put(path, {"task_ids": task["id"]}, client=client)
 
 
-def new_task_type(name, client=default):
+async def new_task_type(name, client=default):
     """
     Create a new task type with the given name.
 
@@ -838,10 +838,10 @@ def new_task_type(name, client=default):
         dict: The created task type
     """
     data = {"name": name}
-    return raw.post("data/task-types", data, client=client)
+    return await raw.post("data/task-types", data, client=client)
 
 
-def new_task_status(name, short_name, color, client=default):
+async def new_task_status(name, short_name, color, client=default):
     """
     Create a new task status with the given name, short name and color.
 
@@ -858,10 +858,10 @@ def new_task_status(name, short_name, color, client=default):
     assert all(c in string.hexdigits for c in color[1:])
 
     data = {"name": name, "short_name": short_name, "color": color}
-    return raw.post("data/task-status", data, client=client)
+    return await raw.post("data/task-status", data, client=client)
 
 
-def update_task(task, client=default):
+async def update_task(task, client=default):
     """
     Save given task data into the API. Metadata are fully replaced by the ones
     set on given task.
@@ -872,10 +872,10 @@ def update_task(task, client=default):
     Returns:
         dict: Updated task.
     """
-    return raw.put("data/tasks/%s" % task["id"], task, client=client)
+    return await raw.put("data/tasks/%s" % task["id"], task, client=client)
 
 
-def update_task_data(task, data={}, client=default):
+async def update_task_data(task, data={}, client=default):
     """
     Update the metadata for the provided task. Keys that are not provided are
     not changed.
@@ -888,17 +888,17 @@ def update_task_data(task, data={}, client=default):
         dict: Updated task.
     """
     task = normalize_model_parameter(task)
-    current_task = get_task(task["id"], client=client)
+    current_task = await get_task(task["id"], client=client)
 
     updated_task = {"id": current_task["id"], "data": current_task["data"]}
     if updated_task["data"] is None:
         updated_task["data"] = {}
     updated_task["data"].update(data)
-    return update_task(updated_task, client=client)
+    return await update_task(updated_task, client=client)
 
 
 @cache
-def get_task_url(task, client=default):
+async def get_task_url(task, client=default):
     """
     Args:
         task (str / dict): The task dict or the task ID.
@@ -915,7 +915,7 @@ def get_task_url(task, client=default):
     )
 
 
-def all_tasks_for_project(project, client=default):
+async def all_tasks_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project
@@ -925,4 +925,4 @@ def all_tasks_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "/data/projects/%s/tasks" % project["id"]
-    return raw.get(path, client=client)
+    return await raw.get(path, client=client)

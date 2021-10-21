@@ -9,7 +9,7 @@ default = raw.default_client
 
 
 @cache
-def all_playlists(client=default):
+async def all_playlists(client=default):
     """
     Returns:
         list: All playlists for all projects.
@@ -18,7 +18,7 @@ def all_playlists(client=default):
 
 
 @cache
-def all_shots_for_playlist(playlist, client=default):
+async def all_shots_for_playlist(playlist, client=default):
     """
     Args:
         playlist (str / dict): The playlist dict or the playlist ID.
@@ -27,12 +27,12 @@ def all_shots_for_playlist(playlist, client=default):
         list: All shots linked to the given playlist
     """
     playlist = normalize_model_parameter(playlist)
-    playlist = raw.fetch_one("playlists", playlist["id"], client=client)
+    playlist = await raw.fetch_one("playlists", playlist["id"], client=client)
     return sort_by_name(playlist["shots"])
 
 
 @cache
-def all_playlists_for_project(project, client=default, page=1):
+async def all_playlists_for_project(project, client=default, page=1):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -42,7 +42,7 @@ def all_playlists_for_project(project, client=default, page=1):
     """
     project = normalize_model_parameter(project)
     return sort_by_name(
-        raw.fetch_all(
+        await raw.fetch_all(
             "projects/%s/playlists" % project["id"],
             params={"page": page},
             client=client,
@@ -51,7 +51,7 @@ def all_playlists_for_project(project, client=default, page=1):
 
 
 @cache
-def all_playlists_for_episode(episode, client=default):
+async def all_playlists_for_episode(episode, client=default):
     """
 
     Args:
@@ -63,7 +63,7 @@ def all_playlists_for_episode(episode, client=default):
 
     project = normalize_model_parameter(episode["project_id"])
     return sort_by_name(
-        raw.fetch_all(
+        await raw.fetch_all(
             "projects/%s/episodes/%s/playlists"
             % (
                 project["id"],
@@ -75,7 +75,7 @@ def all_playlists_for_episode(episode, client=default):
 
 
 @cache
-def get_playlist(playlist, client=default):
+async def get_playlist(playlist, client=default):
     """
     Args:
         playlist (str / dict): The playlist dict or the playlist ID.
@@ -85,11 +85,11 @@ def get_playlist(playlist, client=default):
     """
 
     playlist = normalize_model_parameter(playlist)
-    return raw.fetch_one("playlists", playlist["id"], client=client)
+    return await raw.fetch_one("playlists", playlist["id"], client=client)
 
 
 @cache
-def get_playlist_by_name(project, name, client=default):
+async def get_playlist_by_name(project, name, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -100,10 +100,10 @@ def get_playlist_by_name(project, name, client=default):
     """
     project = normalize_model_parameter(project)
     params = {"project_id": project["id"], "name": name}
-    return raw.fetch_first("playlists", params=params, client=client)
+    return await raw.fetch_first("playlists", params=params, client=client)
 
 
-def new_playlist(
+async def new_playlist(
     project,
     name,
     episode=None,
@@ -131,13 +131,13 @@ def new_playlist(
     if episode is not None:
         episode = normalize_model_parameter(episode)
         data["episode_id"] = episode["id"]
-    playlist = get_playlist_by_name(project, name, client=client)
+    playlist = await get_playlist_by_name(project, name, client=client)
     if playlist is None:
-        playlist = raw.post("data/playlists/", data, client=client)
+        playlist = await raw.post("data/playlists/", data, client=client)
     return playlist
 
 
-def update_playlist(playlist, client=default):
+async def update_playlist(playlist, client=default):
     """
     Save given playlist data into the API. Metadata are fully replaced by
     the ones set on given playlist.
@@ -148,6 +148,4 @@ def update_playlist(playlist, client=default):
     Returns:
         dict: Updated playlist.
     """
-    return raw.put(
-        "data/playlists/%s" % playlist["id"], playlist, client=client
-    )
+    return await raw.put("data/playlists/%s" % playlist["id"], playlist, client=client)

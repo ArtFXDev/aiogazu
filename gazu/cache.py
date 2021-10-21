@@ -75,7 +75,7 @@ def get_cache_key(args, kwargs):
         return json.dumps([args, kwargscopy])
 
 
-def insert_value(function, cache_store, args, kwargs):
+async def insert_value(function, cache_store, args, kwargs):
     """
     Serialize function call arguments and store function result in given cache
     store.
@@ -88,7 +88,7 @@ def insert_value(function, cache_store, args, kwargs):
     Returns:
         The cached value.
     """
-    returned_value = function(*args, **kwargs)
+    returned_value = await function(*args, **kwargs)
     key = get_cache_key(args, kwargs)
     cache_store[key] = {
         "date_accessed": datetime.datetime.now(),
@@ -180,7 +180,7 @@ def cache(function, maxsize=300, expire=120):
         state["enabled"] = False
 
     @wraps(function)
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
 
         if is_cache_enabled(state):
             key = get_cache_key(args, kwargs)
@@ -188,21 +188,19 @@ def cache(function, maxsize=300, expire=120):
             if key in cache_store:
                 if is_cache_expired(cache_store, state, key):
                     statistics["expired_hits"] += 1
-                    return insert_value(function, cache_store, args, kwargs)
+                    return await insert_value(function, cache_store, args, kwargs)
                 else:
                     statistics["hits"] += 1
                     return get_value(cache_store, key)
 
             else:
                 statistics["misses"] += 1
-                returned_value = insert_value(
-                    function, cache_store, args, kwargs
-                )
+                returned_value = await insert_value(function, cache_store, args, kwargs)
                 remove_oldest_entry(cache_store, state["maxsize"])
                 return returned_value
 
         else:
-            return function(*args, **kwargs)
+            return await function(*args, **kwargs)
 
     wrapper.set_cache_expire = set_expire
     wrapper.set_cache_max_size = set_max_size

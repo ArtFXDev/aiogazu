@@ -8,7 +8,7 @@ default = raw.default_client
 
 
 @cache
-def all_organisations(client=default):
+async def all_organisations(client=default):
     """
     Returns:
         list: Organisations listed in database.
@@ -17,7 +17,7 @@ def all_organisations(client=default):
 
 
 @cache
-def all_persons(client=default):
+async def all_persons(client=default):
     """
     Returns:
         list: Persons listed in database.
@@ -26,7 +26,7 @@ def all_persons(client=default):
 
 
 @cache
-def get_person(id, client=default):
+async def get_person(id, client=default):
     """
     Args:
         id (str): An uuid identifying a person.
@@ -34,11 +34,11 @@ def get_person(id, client=default):
     Returns:
         dict: Person corresponding to given id.
     """
-    return raw.fetch_one("persons", id, client=client)
+    return await raw.fetch_one("persons", id, client=client)
 
 
 @cache
-def get_person_by_desktop_login(desktop_login, client=default):
+async def get_person_by_desktop_login(desktop_login, client=default):
     """
     Args:
         desktop_login (str): Login used to sign in on the desktop computer.
@@ -46,13 +46,13 @@ def get_person_by_desktop_login(desktop_login, client=default):
     Returns:
         dict: Person corresponding to given desktop computer login.
     """
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "persons", {"desktop_login": desktop_login}, client=client
     )
 
 
 @cache
-def get_person_by_email(email, client=default):
+async def get_person_by_email(email, client=default):
     """
     Args:
         email (str): User's email.
@@ -60,11 +60,11 @@ def get_person_by_email(email, client=default):
     Returns:
         dict:  Person corresponding to given email.
     """
-    return raw.fetch_first("persons", {"email": email}, client=client)
+    return await raw.fetch_first("persons", {"email": email}, client=client)
 
 
 @cache
-def get_person_by_full_name(full_name, client=default):
+async def get_person_by_full_name(full_name, client=default):
     """
     Args:
         full_name (str): User's full name
@@ -77,9 +77,7 @@ def get_person_by_full_name(full_name, client=default):
     else:
         first_name, last_name = full_name.lower().strip(), ""
     for person in all_persons():
-        is_right_first_name = (
-            first_name == person["first_name"].lower().strip()
-        )
+        is_right_first_name = first_name == person["first_name"].lower().strip()
         is_right_last_name = (
             len(last_name) == 0 or last_name == person["last_name"].lower()
         )
@@ -89,7 +87,7 @@ def get_person_by_full_name(full_name, client=default):
 
 
 @cache
-def get_person_url(person, client=default):
+async def get_person_url(person, client=default):
     """
     Args:
         person (str / dict): The person dict or the person ID.
@@ -106,15 +104,15 @@ def get_person_url(person, client=default):
 
 
 @cache
-def get_organisation(client=default):
+async def get_organisation(client=default):
     """
     Returns:
         dict: Database information for organisation linked to auth tokens.
     """
-    return raw.get("auth/authenticated", client=client)["organisation"]
+    return await raw.get("auth/authenticated", client=client)["organisation"]
 
 
-def new_person(
+async def new_person(
     first_name,
     last_name,
     email,
@@ -139,9 +137,9 @@ def new_person(
     Returns:
         dict: Created person.
     """
-    person = get_person_by_email(email)
+    person = await get_person_by_email(email)
     if person is None:
-        person = raw.post(
+        person = await raw.post(
             "data/persons/new",
             {
                 "first_name": first_name,
@@ -156,7 +154,7 @@ def new_person(
     return person
 
 
-def set_avatar(person, file_path, client=default):
+async def set_avatar(person, file_path, client=default):
     """
     Upload picture and set it as avatar for given person.
 
@@ -166,14 +164,14 @@ def set_avatar(person, file_path, client=default):
                          drive.
     """
     person = normalize_model_parameter(person)
-    return raw.upload(
+    return await raw.upload(
         "/pictures/thumbnails/persons/%s" % person["id"],
         file_path,
         client=client,
     )
 
 
-def get_presence_log(year, month, client=default):
+async def get_presence_log(year, month, client=default):
     """
     Args:
         year (int):
@@ -183,4 +181,4 @@ def get_presence_log(year, month, client=default):
         The presence log table for given month and year.
     """
     path = "data/persons/presence-logs/%s-%s" % (year, str(month).zfill(2))
-    return raw.get(path, json_response=False, client=client)
+    return await raw.get(path, json_response=False, client=client)

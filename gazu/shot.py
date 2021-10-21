@@ -8,7 +8,7 @@ default = raw.default_client
 
 
 @cache
-def all_previews_for_shot(shot, client=default):
+async def all_previews_for_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -17,11 +17,11 @@ def all_previews_for_shot(shot, client=default):
         list: Previews from database for given shot.
     """
     shot = normalize_model_parameter(shot)
-    return raw.fetch_all("shots/%s/preview-files" % shot["id"], client=client)
+    return await raw.fetch_all("shots/%s/preview-files" % shot["id"], client=client)
 
 
 @cache
-def all_shots_for_project(project, client=default):
+async def all_shots_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -30,13 +30,13 @@ def all_shots_for_project(project, client=default):
         list: Shots from database or for given project.
     """
     project = normalize_model_parameter(project)
-    shots = raw.fetch_all("projects/%s/shots" % project["id"], client=client)
+    shots = await raw.fetch_all("projects/%s/shots" % project["id"], client=client)
 
     return sort_by_name(shots)
 
 
 @cache
-def all_shots_for_episode(episode, client=default):
+async def all_shots_for_episode(episode, client=default):
     """
     Args:
         episode (str / dict): The episode dict or the episode ID.
@@ -46,12 +46,12 @@ def all_shots_for_episode(episode, client=default):
     """
     episode = normalize_model_parameter(episode)
     return sort_by_name(
-        raw.fetch_all("episodes/%s/shots" % episode["id"], client=client)
+        await raw.fetch_all("episodes/%s/shots" % episode["id"], client=client)
     )
 
 
 @cache
-def all_shots_for_sequence(sequence, client=default):
+async def all_shots_for_sequence(sequence, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -61,12 +61,12 @@ def all_shots_for_sequence(sequence, client=default):
     """
     sequence = normalize_model_parameter(sequence)
     return sort_by_name(
-        raw.fetch_all("sequences/%s/shots" % sequence["id"], client=client)
+        await raw.fetch_all("sequences/%s/shots" % sequence["id"], client=client)
     )
 
 
 @cache
-def all_sequences_for_project(project, client=default):
+async def all_sequences_for_project(project, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -76,12 +76,12 @@ def all_sequences_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "projects/%s/sequences" % project["id"]
-    sequences = raw.fetch_all(path, client=client)
+    sequences = await raw.fetch_all(path, client=client)
     return sort_by_name(sequences)
 
 
 @cache
-def all_sequences_for_episode(episode, client=default):
+async def all_sequences_for_episode(episode, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -91,12 +91,12 @@ def all_sequences_for_episode(episode, client=default):
     """
     episode = normalize_model_parameter(episode)
     path = "episodes/%s/sequences" % episode["id"]
-    sequences = raw.fetch_all(path, client=client)
+    sequences = await raw.fetch_all(path, client=client)
     return sort_by_name(sequences)
 
 
 @cache
-def all_episodes_for_project(project, client=default):
+async def all_episodes_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -106,12 +106,12 @@ def all_episodes_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "projects/%s/episodes" % project["id"]
-    episodes = raw.fetch_all(path, client=client)
+    episodes = await raw.fetch_all(path, client=client)
     return sort_by_name(episodes)
 
 
 @cache
-def get_episode(episode_id, client=default):
+async def get_episode(episode_id, client=default):
     """
     Args:
         episode_id (str): Id of claimed episode.
@@ -119,11 +119,11 @@ def get_episode(episode_id, client=default):
     Returns:
         dict: Episode corresponding to given episode ID.
     """
-    return raw.fetch_one("episodes", episode_id, client=client)
+    return await raw.fetch_one("episodes", episode_id, client=client)
 
 
 @cache
-def get_episode_by_name(project, episode_name, client=default):
+async def get_episode_by_name(project, episode_name, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -133,7 +133,7 @@ def get_episode_by_name(project, episode_name, client=default):
         dict: Episode corresponding to given name and project.
     """
     project = normalize_model_parameter(project)
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "episodes",
         {"project_id": project["id"], "name": episode_name},
         client=client,
@@ -141,7 +141,7 @@ def get_episode_by_name(project, episode_name, client=default):
 
 
 @cache
-def get_episode_from_sequence(sequence, client=default):
+async def get_episode_from_sequence(sequence, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -150,11 +150,11 @@ def get_episode_from_sequence(sequence, client=default):
         dict: Episode which is parent of given sequence.
     """
     sequence = normalize_model_parameter(sequence)
-    return get_episode(sequence["parent_id"], client=client)
+    return await get_episode(sequence["parent_id"], client=client)
 
 
 @cache
-def get_sequence(sequence_id, client=default):
+async def get_sequence(sequence_id, client=default):
     """
     Args:
         sequence_id (str): ID of claimed sequence.
@@ -162,11 +162,11 @@ def get_sequence(sequence_id, client=default):
     Returns:
         dict: Sequence corresponding to given sequence ID.
     """
-    return raw.fetch_one("sequences", sequence_id, client=client)
+    return await raw.fetch_one("sequences", sequence_id, client=client)
 
 
 @cache
-def get_sequence_by_name(project, sequence_name, episode=None, client=default):
+async def get_sequence_by_name(project, sequence_name, episode=None, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -183,11 +183,11 @@ def get_sequence_by_name(project, sequence_name, episode=None, client=default):
     else:
         episode = normalize_model_parameter(episode)
         params = {"episode_id": episode["id"], "name": sequence_name}
-    return raw.fetch_first("sequences", params, client=client)
+    return await raw.fetch_first("sequences", params, client=client)
 
 
 @cache
-def get_sequence_from_shot(shot, client=default):
+async def get_sequence_from_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -200,7 +200,7 @@ def get_sequence_from_shot(shot, client=default):
 
 
 @cache
-def get_shot(shot_id, client=default):
+async def get_shot(shot_id, client=default):
     """
     Args:
         shot_id (str): Id of claimed shot.
@@ -208,11 +208,11 @@ def get_shot(shot_id, client=default):
     Returns:
         dict: Shot corresponding to given shot ID.
     """
-    return raw.fetch_one("shots", shot_id, client=client)
+    return await raw.fetch_one("shots", shot_id, client=client)
 
 
 @cache
-def get_shot_by_name(sequence, shot_name, client=default):
+async def get_shot_by_name(sequence, shot_name, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -222,7 +222,7 @@ def get_shot_by_name(sequence, shot_name, client=default):
         dict: Shot corresponding to given name and sequence.
     """
     sequence = normalize_model_parameter(sequence)
-    return raw.fetch_first(
+    return await raw.fetch_first(
         "shots/all",
         {"sequence_id": sequence["id"], "name": shot_name},
         client=client,
@@ -230,7 +230,7 @@ def get_shot_by_name(sequence, shot_name, client=default):
 
 
 @cache
-def get_episode_url(episode, client=default):
+async def get_episode_url(episode, client=default):
     """
     Args:
         episode (str / dict): The episode dict or the episode ID.
@@ -239,7 +239,7 @@ def get_episode_url(episode, client=default):
         url (str): Web url associated to the given episode
     """
     episode = normalize_model_parameter(episode)
-    episode = get_episode(episode["id"])
+    episode = await get_episode(episode["id"])
     path = "{host}/productions/{project_id}/episodes/{episode_id}/shots"
     return path.format(
         host=raw.get_api_url_from_host(client=client),
@@ -249,7 +249,7 @@ def get_episode_url(episode, client=default):
 
 
 @cache
-def get_shot_url(shot, client=default):
+async def get_shot_url(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -258,7 +258,7 @@ def get_shot_url(shot, client=default):
         url (str): Web url associated to the given shot
     """
     shot = normalize_model_parameter(shot)
-    shot = get_shot(shot["id"])
+    shot = await get_shot(shot["id"])
     path = "{host}/productions/{project_id}/"
     if shot["episode_id"] is None:
         path += "shots/{shot_id}/"
@@ -272,7 +272,7 @@ def get_shot_url(shot, client=default):
     )
 
 
-def new_sequence(project, name, episode=None, client=default):
+async def new_sequence(project, name, episode=None, client=default):
     """
     Create a sequence for given project and episode.
 
@@ -291,17 +291,17 @@ def new_sequence(project, name, episode=None, client=default):
         episode = normalize_model_parameter(episode)
         data["episode_id"] = episode["id"]
 
-    sequence = get_sequence_by_name(
+    sequence = await get_sequence_by_name(
         project, name, episode=episode, client=client
     )
     if sequence is None:
         path = "data/projects/%s/sequences" % project["id"]
-        return raw.post(path, data, client=client)
+        return await raw.post(path, data, client=client)
     else:
         return sequence
 
 
-def new_shot(
+async def new_shot(
     project,
     sequence,
     name,
@@ -338,15 +338,15 @@ def new_shot(
     if nb_frames is not None:
         data["nb_frames"] = nb_frames
 
-    shot = get_shot_by_name(sequence, name, client=client)
+    shot = await get_shot_by_name(sequence, name, client=client)
     if shot is None:
         path = "data/projects/%s/shots" % project["id"]
-        return raw.post(path, data, client=client)
+        return await raw.post(path, data, client=client)
     else:
         return shot
 
 
-def update_shot(shot, client=default):
+async def update_shot(shot, client=default):
     """
     Save given shot data into the API. Metadata are fully replaced by the ones
     set on given shot.
@@ -357,10 +357,10 @@ def update_shot(shot, client=default):
     Returns:
         dict: Updated shot.
     """
-    return raw.put("data/entities/%s" % shot["id"], shot, client=client)
+    return await raw.put("data/entities/%s" % shot["id"], shot, client=client)
 
 
-def update_sequence(sequence, client=default):
+async def update_sequence(sequence, client=default):
     """
     Save given sequence data into the API. Metadata are fully replaced by the
     ones set on given sequence.
@@ -371,21 +371,21 @@ def update_sequence(sequence, client=default):
     Returns:
         dict: Updated sequence.
     """
-    return raw.put(
+    return await raw.put(
         "data/entities/%s" % sequence["id"], sequence, client=client
     )
 
 
 @cache
-def get_asset_instances_for_shot(shot, client=default):
+async def get_asset_instances_for_shot(shot, client=default):
     """
     Return the list of asset instances linked to given shot.
     """
     shot = normalize_model_parameter(shot)
-    return raw.get("data/shots/%s/asset-instances" % shot["id"], client=client)
+    return await raw.get("data/shots/%s/asset-instances" % shot["id"], client=client)
 
 
-def update_shot_data(shot, data={}, client=default):
+async def update_shot_data(shot, data={}, client=default):
     """
     Update the metadata for the provided shot. Keys that are not provided are
     not changed.
@@ -398,13 +398,13 @@ def update_shot_data(shot, data={}, client=default):
         dict: Updated shot.
     """
     shot = normalize_model_parameter(shot)
-    current_shot = get_shot(shot["id"], client=client)
+    current_shot = await get_shot(shot["id"], client=client)
     updated_shot = {"id": current_shot["id"], "data": current_shot["data"]}
     updated_shot["data"].update(data)
-    return update_shot(updated_shot, client=client)
+    return await update_shot(updated_shot, client=client)
 
 
-def update_sequence_data(sequence, data={}, client=default):
+async def update_sequence_data(sequence, data={}, client=default):
     """
     Update the metadata for the provided sequence. Keys that are not provided
     are not changed.
@@ -417,7 +417,7 @@ def update_sequence_data(sequence, data={}, client=default):
         dict: Updated sequence.
     """
     sequence = normalize_model_parameter(sequence)
-    current_sequence = get_sequence(sequence["id"], client=client)
+    current_sequence = await get_sequence(sequence["id"], client=client)
 
     if not current_sequence.get("data"):
         current_sequence["data"] = {}
@@ -430,7 +430,7 @@ def update_sequence_data(sequence, data={}, client=default):
     return update_sequence(updated_sequence, client)
 
 
-def remove_shot(shot, force=False, client=default):
+async def remove_shot(shot, force=False, client=default):
     """
     Remove given shot from database.
 
@@ -442,10 +442,10 @@ def remove_shot(shot, force=False, client=default):
     params = {}
     if force:
         params = {"force": "true"}
-    return raw.delete(path, params, client=client)
+    return await raw.delete(path, params, client=client)
 
 
-def restore_shot(shot, client=default):
+async def restore_shot(shot, client=default):
     """
     Restore given shot into database (uncancel it).
 
@@ -455,10 +455,10 @@ def restore_shot(shot, client=default):
     shot = normalize_model_parameter(shot)
     path = "data/shots/%s" % shot["id"]
     data = {"canceled": False}
-    return raw.put(path, data, client=client)
+    return await raw.put(path, data, client=client)
 
 
-def new_episode(project, name, client=default):
+async def new_episode(project, name, client=default):
     """
     Create an episode for given project.
 
@@ -471,16 +471,16 @@ def new_episode(project, name, client=default):
     """
     project = normalize_model_parameter(project)
     data = {"name": name}
-    episode = get_episode_by_name(project, name, client=client)
+    episode = await get_episode_by_name(project, name, client=client)
     if episode is None:
-        return raw.post(
+        return await raw.post(
             "data/projects/%s/episodes" % project["id"], data, client=client
         )
     else:
         return episode
 
 
-def update_episode(episode, client=default):
+async def update_episode(episode, client=default):
     """
     Save given episode data into the API. Metadata are fully replaced by the
     ones set on given episode.
@@ -491,10 +491,10 @@ def update_episode(episode, client=default):
     Returns:
         dict: Updated episode.
     """
-    return raw.put("data/entities/%s" % episode["id"], episode, client=client)
+    return await raw.put("data/entities/%s" % episode["id"], episode, client=client)
 
 
-def update_episode_data(episode, data={}, client=default):
+async def update_episode_data(episode, data={}, client=default):
     """
     Update the metadata for the provided episode. Keys that are not provided
     are not changed.
@@ -507,7 +507,7 @@ def update_episode_data(episode, data={}, client=default):
         dict: Updated episode.
     """
     episode = normalize_model_parameter(episode)
-    current_episode = get_sequence(episode["id"], client=client)
+    current_episode = await get_sequence(episode["id"], client=client)
     updated_episode = {
         "id": current_episode["id"],
         "data": current_episode["data"],
@@ -516,7 +516,7 @@ def update_episode_data(episode, data={}, client=default):
     return update_episode(updated_episode, client=client)
 
 
-def remove_episode(episode, force=False, client=default):
+async def remove_episode(episode, force=False, client=default):
     """
     Remove given episode and related from database.
 
@@ -528,10 +528,10 @@ def remove_episode(episode, force=False, client=default):
     params = {}
     if force:
         params = {"force": "true"}
-    return raw.delete(path, params=params, client=client)
+    return await raw.delete(path, params=params, client=client)
 
 
-def remove_sequence(sequence, force=False, client=default):
+async def remove_sequence(sequence, force=False, client=default):
     """
     Remove given sequence and related from database.
 
@@ -543,11 +543,11 @@ def remove_sequence(sequence, force=False, client=default):
     params = {}
     if force:
         params = {"force": "true"}
-    return raw.delete(path, params=params, client=client)
+    return await raw.delete(path, params=params, client=client)
 
 
 @cache
-def all_asset_instances_for_shot(shot, client=default):
+async def all_asset_instances_for_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -556,10 +556,10 @@ def all_asset_instances_for_shot(shot, client=default):
         list: Asset instances linked to given shot.
     """
     shot = normalize_model_parameter(shot)
-    return raw.get("data/shots/%s/asset-instances" % shot["id"], client=client)
+    return await raw.get("data/shots/%s/asset-instances" % shot["id"], client=client)
 
 
-def add_asset_instance_to_shot(shot, asset_instance, client=default):
+async def add_asset_instance_to_shot(shot, asset_instance, client=default):
     """
     Link a new asset instance to given shot.
 
@@ -574,10 +574,10 @@ def add_asset_instance_to_shot(shot, asset_instance, client=default):
     asset_instance = normalize_model_parameter(asset_instance)
     data = {"asset_instance_id": asset_instance["id"]}
     path = "data/shots/%s/asset-instances" % shot["id"]
-    return raw.post(path, data, client=client)
+    return await raw.post(path, data, client=client)
 
 
-def remove_asset_instance_from_shot(shot, asset_instance, client=default):
+async def remove_asset_instance_from_shot(shot, asset_instance, client=default):
     """
     Remove link between an asset instance and given shot.
 
@@ -591,4 +591,4 @@ def remove_asset_instance_from_shot(shot, asset_instance, client=default):
         shot["id"],
         asset_instance["id"],
     )
-    return raw.delete(path, client=client)
+    return await raw.delete(path, client=client)

@@ -11,18 +11,18 @@ default = raw.default_client
 
 
 @cache
-def all_open_projects(client=default):
+async def all_open_projects(client=default):
     """
     Returns:
         list: Projects for which the user is part of the team. Admins see all
         projects
     """
-    projects = raw.fetch_all("user/projects/open", client=client)
+    projects = await raw.fetch_all("user/projects/open", client=client)
     return sort_by_name(projects)
 
 
 @cache
-def all_asset_types_for_project(project, client=default):
+async def all_asset_types_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -33,12 +33,12 @@ def all_asset_types_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "user/projects/%s/asset-types" % project["id"]
-    asset_types = raw.fetch_all(path, client=client)
+    asset_types = await raw.fetch_all(path, client=client)
     return sort_by_name(asset_types)
 
 
 @cache
-def all_assets_for_asset_type_and_project(project, asset_type, client=default):
+async def all_assets_for_asset_type_and_project(project, asset_type, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -54,12 +54,12 @@ def all_assets_for_asset_type_and_project(project, asset_type, client=default):
         project["id"],
         asset_type["id"],
     )
-    assets = raw.fetch_all(path, client=client)
+    assets = await raw.fetch_all(path, client=client)
     return sort_by_name(assets)
 
 
 @cache
-def all_tasks_for_asset(asset, client=default):
+async def all_tasks_for_asset(asset, client=default):
     """
     Args:
         asset (str / dict): The asset dict or the asset ID.
@@ -69,12 +69,12 @@ def all_tasks_for_asset(asset, client=default):
     """
     asset = normalize_model_parameter(asset)
     path = "user/assets/%s/tasks" % asset["id"]
-    tasks = raw.fetch_all(path, client=client)
+    tasks = await raw.fetch_all(path, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_shot(shot, client=default):
+async def all_tasks_for_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -84,12 +84,12 @@ def all_tasks_for_shot(shot, client=default):
     """
     shot = normalize_model_parameter(shot)
     path = "user/shots/%s/tasks" % shot["id"]
-    tasks = raw.fetch_all(path, client=client)
+    tasks = await raw.fetch_all(path, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_scene(scene, client=default):
+async def all_tasks_for_scene(scene, client=default):
     """
     Args:
         scene (str / dict): The scene dict or the scene ID.
@@ -99,23 +99,23 @@ def all_tasks_for_scene(scene, client=default):
     """
     scene = normalize_model_parameter(scene)
     path = "user/scene/%s/tasks" % scene["id"]
-    tasks = raw.fetch_all(path, client=client)
+    tasks = await raw.fetch_all(path, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_tasks_for_sequence(sequence, client=default):
+async def all_tasks_for_sequence(sequence, client=default):
     """
     Return the list of tasks for given asset and current user.
     """
     sequence = normalize_model_parameter(sequence)
     path = "user/sequences/%s/tasks" % sequence["id"]
-    tasks = raw.fetch_all(path, client=client)
+    tasks = await raw.fetch_all(path, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_task_types_for_asset(asset, client=default):
+async def all_task_types_for_asset(asset, client=default):
     """
     Args:
         asset (str / dict): The asset dict or the asset ID.
@@ -125,12 +125,12 @@ def all_task_types_for_asset(asset, client=default):
     """
     asset = normalize_model_parameter(asset)
     path = "user/assets/%s/task-types" % asset["id"]
-    tasks = raw.fetch_all(path, client=client)
+    tasks = await raw.fetch_all(path, client=client)
     return sort_by_name(tasks)
 
 
 @cache
-def all_task_types_for_shot(shot, client=default):
+async def all_task_types_for_shot(shot, client=default):
     """
     Args:
         shot (str / dict): The shot dict or the shot ID.
@@ -140,12 +140,12 @@ def all_task_types_for_shot(shot, client=default):
     """
     shot = normalize_model_parameter(shot)
     path = "user/shots/%s/task-types" % shot["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_scene(scene, client=default):
+async def all_task_types_for_scene(scene, client=default):
     """
     Args:
         scene (str / dict): The scene dict or the scene ID.
@@ -155,23 +155,23 @@ def all_task_types_for_scene(scene, client=default):
     """
     scene = normalize_model_parameter(scene)
     path = "user/scenes/%s/task-types" % scene["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_task_types_for_sequence(sequence, client=default):
+async def all_task_types_for_sequence(sequence, client=default):
     """
     return the list of task_tyes for given asset and current user.
     """
     sequence = normalize_model_parameter(sequence)
     path = "user/sequences/%s/task-types" % sequence["id"]
-    task_types = raw.fetch_all(path, client=client)
+    task_types = await raw.fetch_all(path, client=client)
     return sort_by_name(task_types)
 
 
 @cache
-def all_sequences_for_project(project, client=default):
+async def all_sequences_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -181,12 +181,12 @@ def all_sequences_for_project(project, client=default):
     """
     project = normalize_model_parameter(project)
     path = "user/projects/%s/sequences" % project["id"]
-    sequences = raw.fetch_all(path, client=client)
+    sequences = await raw.fetch_all(path, client=client)
     return sort_by_name(sequences)
 
 
 @cache
-def all_episodes_for_project(project, client=default):
+async def all_episodes_for_project(project, client=default):
     """
     Args:
         project (str / dict): The project dict or the project ID.
@@ -195,12 +195,12 @@ def all_episodes_for_project(project, client=default):
         list: Episodes for which user has tasks assigned for given project.
     """
     path = "user/projects/%s/episodes" % project["id"]
-    asset_types = raw.fetch_all(path, client=client)
+    asset_types = await raw.fetch_all(path, client=client)
     return sort_by_name(asset_types)
 
 
 @cache
-def all_shots_for_sequence(sequence, client=default):
+async def all_shots_for_sequence(sequence, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -210,12 +210,12 @@ def all_shots_for_sequence(sequence, client=default):
     """
     sequence = normalize_model_parameter(sequence)
     path = "user/sequences/%s/shots" % sequence["id"]
-    shots = raw.fetch_all(path, client=client)
+    shots = await raw.fetch_all(path, client=client)
     return sort_by_name(shots)
 
 
 @cache
-def all_scenes_for_sequence(sequence, client=default):
+async def all_scenes_for_sequence(sequence, client=default):
     """
     Args:
         sequence (str / dict): The sequence dict or the sequence ID.
@@ -225,20 +225,20 @@ def all_scenes_for_sequence(sequence, client=default):
     """
     sequence = normalize_model_parameter(sequence)
     path = "user/sequences/%s/scenes" % sequence["id"]
-    scenes = raw.fetch_all(path, client=client)
+    scenes = await raw.fetch_all(path, client=client)
     return sort_by_name(scenes)
 
 
 @cache
-def all_tasks_to_do(client=default):
+async def all_tasks_to_do(client=default):
     """
     Returns:
         list: Tasks assigned to current user which are not complete.
     """
-    return raw.fetch_all("user/tasks", client=client)
+    return await raw.fetch_all("user/tasks", client=client)
 
 
-def log_desktop_session_log_in(client=default):
+async def log_desktop_session_log_in(client=default):
     """
     Add a log entry to mention that the user logged in his computer.
 
@@ -247,15 +247,15 @@ def log_desktop_session_log_in(client=default):
     """
     path = "/data/user/desktop-login-logs"
     data = {"date": datetime.datetime.now().isoformat()}
-    return raw.post(path, data, client=client)
+    return await raw.post(path, data, client=client)
 
 
-def is_authenticated(client=default):
+async def is_authenticated(client=default):
     """
     Returns:
         boolean: Current user authenticated or not
     """
     try:
-        return raw.get("auth/authenticated")["authenticated"]
+        return await raw.get("auth/authenticated")["authenticated"]
     except NotAuthenticatedException:
         return False
