@@ -70,6 +70,19 @@ async def get_output_type_by_name(output_type_name, client=default):
         "output-types", {"name": output_type_name}, client=client
     )
 
+@cache
+async def get_output_type_by_short_name(output_type_short_name, client=default):
+    """
+    Args:
+        output_type_short_name (str): short name of claimed output type.
+
+    Returns:
+        dict: Output type matching given name.
+    """
+    return await raw.fetch_first(
+        "output-types", {"short_name": output_type_short_name}, client=client
+    )
+
 
 async def new_output_type(name, short_name, client=default):
     """
