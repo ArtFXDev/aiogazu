@@ -4,15 +4,14 @@ from typing import Any
 import aiohttp
 
 from .__version__ import __version__
-
 from .exception import (
-    TooBigFileException,
-    NotAuthenticatedException,
-    NotAllowedException,
     MethodNotAllowedException,
+    NotAllowedException,
+    NotAuthenticatedException,
     ParameterException,
     RouteNotFoundException,
     ServerErrorException,
+    TooBigFileException,
     UploadFailedException,
 )
 
@@ -200,7 +199,7 @@ async def put(path, data, client=default_client) -> Any:
         The request result.
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
-        async with session.post(get_full_url(path, client), json=data) as response:
+        async with session.put(get_full_url(path, client), json=data) as response:
             check_status(response.status, path)
             return await response.json()
 
@@ -213,7 +212,9 @@ async def delete(path, params=None, client=default_client) -> Any:
         The request result.
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
-        async with session.get(get_full_url(path, client), params=params) as response:
+        async with session.delete(
+            get_full_url(path, client), params=params
+        ) as response:
             check_status(response.status, path)
             return await response.text()
 
@@ -359,7 +360,6 @@ async def upload(
     files.update(data)
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.post(get_full_url(path, client), data=files) as response:
-            print(response)
             check_status(response.status, path)
             result = await response.json()
             if "message" in result:
