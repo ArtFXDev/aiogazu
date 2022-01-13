@@ -195,9 +195,11 @@ async def get(path, json_response=True, params=None, client=default_client) -> A
         async with session.get(get_full_url(path, client), params=params) as response:
             try:
                 check_status(response.status, path)
-            except NotAuthenticatedException:
+            except NotAuthenticatedException as exception:
                 if await client.auth_fail_callback():
                     await get(path, json_response, params, client)
+                else:
+                    raise exception
 
             if json_response:
                 return await response.json()
@@ -216,9 +218,11 @@ async def post(path, data, client=default_client) -> Any:
         async with session.post(get_full_url(path, client), json=data) as response:
             try:
                 check_status(response.status, path)
-            except NotAuthenticatedException:
+            except NotAuthenticatedException as exception:
                 if await client.auth_fail_callback():
                     await post(path, data, client)
+                else:
+                    raise exception
             return await response.json()
 
 
@@ -230,12 +234,14 @@ async def put(path, data, client=default_client) -> Any:
         The request result.
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
-        async with session.post(get_full_url(path, client), json=data) as response:
+        async with session.put(get_full_url(path, client), json=data) as response:
             try:
                 check_status(response.status, path)
-            except NotAuthenticatedException:
+            except NotAuthenticatedException as exception:
                 if await client.auth_fail_callback():
                     await put(path, data, client)
+                else:
+                    raise exception
             return await response.json()
 
 
@@ -247,12 +253,16 @@ async def delete(path, params=None, client=default_client) -> Any:
         The request result.
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
-        async with session.get(get_full_url(path, client), params=params) as response:
+        async with session.delete(
+            get_full_url(path, client), params=params
+        ) as response:
             try:
                 check_status(response.status, path)
-            except NotAuthenticatedException:
+            except NotAuthenticatedException as exception:
                 if await client.auth_fail_callback():
                     await put(path, params, client)
+                else:
+                    raise exception
             return await response.text()
 
 
@@ -397,7 +407,6 @@ async def upload(
     files.update(data)
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.post(get_full_url(path, client), data=files) as response:
-            print(response)
             check_status(response.status, path)
             result = await response.json()
             if "message" in result:
