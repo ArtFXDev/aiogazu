@@ -106,7 +106,7 @@ def set_host(new_host, client=default_client) -> str:
     return client.host
 
 
-async def get_auth_fail_callback(client=default_client):
+def get_auth_fail_callback(client=default_client):
     """
     Returns:
         Callable to execute when a request fails
@@ -114,7 +114,7 @@ async def get_auth_fail_callback(client=default_client):
     return client.auth_fail_callback
 
 
-async def set_auth_fail_callback(callback, client=default_client):
+def set_auth_fail_callback(callback, client=default_client):
     """
     Returns:
         Set currently configured callable to execute when a request fails

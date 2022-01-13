@@ -12,6 +12,14 @@ def set_host(url, client=raw.default_client):
     raw.set_host(url, client=client)
 
 
+def set_auth_fail_callback(callback, client=raw.default_client):
+    raw.set_auth_fail_callback(callback, client)
+
+
+def get_auth_fail_callback(client=raw.default_client):
+    raw.get_auth_fail_callback(client)
+
+
 async def log_in(email, password, client=raw.default_client):
     tokens = {}
     try:
