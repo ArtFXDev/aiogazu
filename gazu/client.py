@@ -4,15 +4,14 @@ from typing import Any
 import aiohttp
 
 from .__version__ import __version__
-
 from .exception import (
-    TooBigFileException,
-    NotAuthenticatedException,
-    NotAllowedException,
     MethodNotAllowedException,
+    NotAllowedException,
+    NotAuthenticatedException,
     ParameterException,
     RouteNotFoundException,
     ServerErrorException,
+    TooBigFileException,
     UploadFailedException,
 )
 
