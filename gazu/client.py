@@ -22,6 +22,11 @@ class KitsuClient(object):
         self.host = host
         self.event_host = host
 
+        async def default_callback():
+            pass
+
+        self.auth_fail_callback = default_callback
+
     @property
     def headers(self):
         headers = {"User-Agent": "CGWire Gazu %s" % __version__}
@@ -100,6 +105,23 @@ def set_host(new_host, client=default_client) -> str:
     return client.host
 
 
+def get_auth_fail_callback(client=default_client):
+    """
+    Returns:
+        Callable to execute when a request fails
+    """
+    return client.auth_fail_callback
+
+
+def set_auth_fail_callback(callback, client=default_client):
+    """
+    Returns:
+        Set currently configured callable to execute when a request fails
+    """
+    client.auth_fail_callback = callback
+    return client.auth_fail_callback
+
+
 def get_event_host(client=default_client):
     """
     Returns:
@@ -170,7 +192,13 @@ async def get(path, json_response=True, params=None, client=default_client) -> A
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.get(get_full_url(path, client), params=params) as response:
-            check_status(response.status, path)
+            try:
+                check_status(response.status, path)
+            except NotAuthenticatedException as exception:
+                if await client.auth_fail_callback():
+                    await get(path, json_response, params, client)
+                else:
+                    raise exception
 
             if json_response:
                 return await response.json()
@@ -187,7 +215,13 @@ async def post(path, data, client=default_client) -> Any:
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.post(get_full_url(path, client), json=data) as response:
-            check_status(response.status, path)
+            try:
+                check_status(response.status, path)
+            except NotAuthenticatedException as exception:
+                if await client.auth_fail_callback():
+                    await post(path, data, client)
+                else:
+                    raise exception
             return await response.json()
 
 
@@ -200,7 +234,13 @@ async def put(path, data, client=default_client) -> Any:
     """
     async with aiohttp.ClientSession(headers=client.headers) as session:
         async with session.put(get_full_url(path, client), json=data) as response:
-            check_status(response.status, path)
+            try:
+                check_status(response.status, path)
+            except NotAuthenticatedException as exception:
+                if await client.auth_fail_callback():
+                    await put(path, data, client)
+                else:
+                    raise exception
             return await response.json()
 
 
@@ -215,7 +255,13 @@ async def delete(path, params=None, client=default_client) -> Any:
         async with session.delete(
             get_full_url(path, client), params=params
         ) as response:
-            check_status(response.status, path)
+            try:
+                check_status(response.status, path)
+            except NotAuthenticatedException as exception:
+                if await client.auth_fail_callback():
+                    await put(path, params, client)
+                else:
+                    raise exception
             return await response.text()
 
 
