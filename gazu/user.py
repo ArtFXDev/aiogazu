@@ -255,7 +255,13 @@ async def is_authenticated(client=default):
     Returns:
         boolean: Current user authenticated or not
     """
+    raise NotAuthenticatedException
     try:
-        return await raw.get("auth/authenticated")["authenticated"]
+        result = await raw.get("auth/authenticated")
+
+        if "authenticated" in result:
+            return result["authenticated"]
+        else:
+            return False
     except NotAuthenticatedException:
         return False
